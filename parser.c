@@ -22,7 +22,7 @@ typedef enum
 } State;
 
 /*
-    Define an Event object
+    Define an Event struct
     - description: Contains the description of the event
     - summary: Contains the event summary
     - dtstart: Contains the starting date and time of the event
@@ -39,25 +39,86 @@ typedef struct
 } Event;
 
 /*
+    Define an ICS struct
+    - events: Stores all the events observed in the ICS file
+    - numEvents: Stores the number of events observed in the ICS file
+    - filename: Stores the name of the ICS file
+*/
+typedef struct
+{
+    Event *events;
+    int numEvents;
+    char *filename;
+} ICS;
+
+/*
     Define the FSM struct
     - currentState: Contains information about the current state of the FSM
-    - events: Stores all the events observed in the ICS file
+    - ics: Stores the ICS Struct
+    - currentEvent: Stores the current Event being processed
 */
 typedef struct
 {
     State currentState;
-    Event *events;
-    int numEvents;
+    ICS ics;
+    Event currentEvent;
 } FSM;
+
+/*
+    Creates a new Event struct
+*/
+Event createEvent()
+{
+    Event event;
+    /* Initialize event properties to NULL */
+    event.description = NULL;
+    event.summary = NULL;
+    event.dtstart = NULL;
+    event.dtend = NULL;
+    event.rrule = NULL;
+    return event;
+}
 
 /*
     Initialize the FSM
 */
-void initFSM(FSM *fsm)
+void initFSM(FSM *fsm, char *filename)
 {
     fsm->currentState = INITIAL_STATE;
-    fsm->events = NULL; 
-    fsm->numEvents = 0;
+    fsm->ics.events = NULL;
+    fsm->ics.numEvents = 0;
+    fsm->ics.filename = filename;
+    fsm->currentEvent = createEvent();
+}
+
+/*
+    Adds a new event into the events list in the FSM's ICS struct
+*/
+void addEvent(FSM *fsm)
+{
+    /* Allocate memory for events list if it's the first event */
+    if (fsm->ics.numEvents == 0)
+    {
+        fsm->ics.events = (Event *)malloc(sizeof(Event));
+        if (fsm->ics.events == NULL)
+        {
+            fprintf(stderr, "Memory allocation for new Event failed.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        /* Resize events list to accommodate the new event */
+        fsm->ics.events = (Event *)realloc(fsm->ics.events, (fsm->ics.numEvents + 1) * sizeof(Event));
+        if (fsm->ics.events == NULL)
+        {
+            fprintf(stderr, "Memory reallocation for new Event failed.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    /* Add the new event to the events list */
+    fsm->ics.events[fsm->ics.numEvents] = fsm->currentEvent;
+    fsm->ics.numEvents += 1;
 }
 
 /*
@@ -84,6 +145,7 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to BEGIN_VEVENT_STATE\n");
             fsm->currentState = BEGIN_VEVENT_STATE;
+            fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {
@@ -96,12 +158,27 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to END_VEVENT_STATE\n");
             fsm->currentState = END_VEVENT_STATE;
+            addEvent(fsm);
         }
-        else
+        else if (strncmp(line, "DESCRIPTION:", 12) == 0)
         {
-            /* TODO: It should modify or create a new Event */
-            fprintf(stderr, "TODO not implemented");
-            exit(EXIT_FAILURE);
+            fsm->currentEvent.description = strdup(line + 12);
+        }
+        else if (strncmp(line, "SUMMARY:", 8) == 0)
+        {
+            fsm->currentEvent.summary = strdup(line + 8);
+        }
+        else if (strncmp(line, "DTSTART;", 8) == 0)
+        {
+            fsm->currentEvent.dtstart = strdup(line + 8);
+        }
+        else if (strncmp(line, "DTEND;", 6) == 0)
+        {
+            fsm->currentEvent.dtend = strdup(line + 6);
+        }
+        else if (strncmp(line, "RRULE:", 6) == 0)
+        {
+            fsm->currentEvent.rrule = strdup(line + 6);
         }
         break;
     case END_VEVENT_STATE:
@@ -124,14 +201,13 @@ void processLine(FSM *fsm, char *line)
 /*
     Parses the ICS file
 */
-void parseFile(char *filename)
+ICS parseFile(char *filename)
 {
     char line[MAX_LINE_LENGTH];
     FSM fsm;
-    FILE * file;
+    FILE *file;
     int length;
-    int line_number = 0;
-    initFSM(&fsm);
+    initFSM(&fsm, filename);
 
     /* Open the ICS file */
     file = fopen(filename, "r");
@@ -145,21 +221,20 @@ void parseFile(char *filename)
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL)
     {
         /* Replace the new line character at the end of each line with null terminator for strcmp to work properly in processLine */
-        length = strlen(line); 
-        if(line[length - 1] == '\n') {
-            line[length - 1] = '\0'; 
+        length = strlen(line);
+        if (line[length - 1] == '\n')
+        {
+            line[length - 1] = '\0';
         }
-        
+
         processLine(&fsm, line);
 
-        /* If currentState is ERROR_STATE, throw an error and print the last line that was processed */
+        /* If currentState is ERROR_STATE, throws an error */
         if (fsm.currentState == ERROR_STATE)
         {
             fprintf(stderr, "Improper ICS file format. BEGIN:VCALENDAR not found.");
             exit(EXIT_FAILURE);
         }
-
-        line_number++;
     }
 
     /* If the final state is not END_VCALENDAR_STATE, it meanas END:VCALENDAR is missing in the ics file */
@@ -170,11 +245,50 @@ void parseFile(char *filename)
     }
 
     fclose(file);
+    return fsm.ics;
+}
+
+/*
+    Print details of an event
+*/
+void printEvent(Event event)
+{
+    printf("Description: %s\n", event.description);
+    printf("Summary: %s\n", event.summary);
+    printf("Start Date: %s\n", event.dtstart);
+    printf("End Date: %s\n", event.dtend);
+    printf("RRULE: %s\n", event.rrule);
+    printf("\n");
+}
+
+/*
+    Frees memory allocated for an ICS struct
+*/
+void freeICS(ICS *ics)
+{
+    int i;
+
+    if (ics->events == NULL)
+    {
+        return;
+    }
+
+    /* Frees the memory allocated by strdup */
+    for (i = 0; i < ics->numEvents; i++)
+    {
+        free(ics->events[i].description);
+        free(ics->events[i].summary);
+        free(ics->events[i].dtstart);
+        free(ics->events[i].dtend);
+        free(ics->events[i].rrule);
+    }
+    free(ics->filename);
 }
 
 int main(int argc, char **argv)
 {
-    int i;
+    int i, j;
+    ICS ics;
 
     if (argc == 1)
     {
@@ -184,8 +298,16 @@ int main(int argc, char **argv)
 
     for (i = 1; i < argc; i++)
     {
-        parseFile(argv[i]);
-    }
+        ics = parseFile(argv[i]);
 
+        printf("ICS Filename: %s\n", ics.filename);
+        printf("No. Events: %d\n", ics.numEvents);
+        for (j = 0; j < ics.numEvents; j++)
+        {
+            printf("Event %d:\n", j + 1);
+            printEvent(ics.events[j]);
+        }
+        freeICS(&ics);
+    }
     return 0;
 }

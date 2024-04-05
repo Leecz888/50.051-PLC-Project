@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #define MAX_LINE_LENGTH 1024
 
 /*
@@ -58,10 +61,12 @@ typedef struct {
 } FSM;
 
 /* Functions */
-Event createEvent();
+Event createEvent(void);
 void initFSM(FSM *fsm, char *filename);
 void addEvent(FSM *fsm);
 void processLine(FSM *fsm, char *line);
 ICS parseFile(char *filename);
 void printEvent(Event event);
 void freeICS(ICS *ics); 
+
+#endif

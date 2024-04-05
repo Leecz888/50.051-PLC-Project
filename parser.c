@@ -6,7 +6,7 @@
 /*
     Creates a new Event struct
 */
-Event createEvent()
+Event createEvent(void)
 {
     Event event;
     /* Initialize event properties to NULL */
@@ -147,7 +147,7 @@ ICS parseFile(char *filename)
     FILE *file;
     int length;
     initFSM(&fsm, filename);
-
+ 
     /* Open the ICS file */
     file = fopen(filename, "r");
     if (file == NULL)
@@ -205,48 +205,11 @@ void printEvent(Event event)
 */
 void freeICS(ICS *ics)
 {
-    int i;
-
     if (ics->events == NULL)
     {
         return;
     }
-
-    /* Frees the memory allocated by strdup */
-    for (i = 0; i < ics->numEvents; i++)
-    {
-        free(ics->events[i].description);
-        free(ics->events[i].summary);
-        free(ics->events[i].dtstart);
-        free(ics->events[i].dtend);
-        free(ics->events[i].rrule);
-    }
-    free(ics->filename);
+    
+    free(ics->events);
 }
 
-int main(int argc, char **argv)
-{
-    int i, j;
-    ICS ics;
-
-    if (argc == 1)
-    {
-        fprintf(stderr, "Please input an ICS file.");
-        exit(EXIT_FAILURE);
-    }
-
-    for (i = 1; i < argc; i++)
-    {
-        ics = parseFile(argv[i]);
-
-        printf("ICS Filename: %s\n", ics.filename);
-        printf("No. Events: %d\n", ics.numEvents);
-        for (j = 0; j < ics.numEvents; j++)
-        {
-            printf("Event %d:\n", j + 1);
-            printEvent(ics.events[j]);
-        }
-        freeICS(&ics);
-    }
-    return 0;
-}

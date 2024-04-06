@@ -13,7 +13,7 @@ typedef enum {
     CHECKING_BYDAY
 } eventProcessingState;
 
-// Create enum for days of the week
+/* Create enum for days of the week */
 typedef enum {
     SU,
     MO,
@@ -37,7 +37,7 @@ static const char *dayOfWeekStrings[] = {
 typedef struct {
     char *timeStart;
     char *timeEnd;
-    char *studentName;
+    int studentID;
     char *className;
 } LLNodeData;
 

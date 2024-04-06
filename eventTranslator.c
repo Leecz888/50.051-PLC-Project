@@ -24,7 +24,7 @@ void processEvent(Event event)
         data->className = event.summary;
     }
     if (event.description != NULL) {
-        data->studentName = event.description;
+        data->studentID = event.description;
     }
     if (event.rrule != NULL) {
         processRRule(event.rrule, event.dtstart, event.dtend);

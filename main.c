@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+/* Additional custom function files*/
 #include "parser.h"
 
 int main(int argc, char **argv)
@@ -8,6 +8,7 @@ int main(int argc, char **argv)
     int i, j;
     ICS ics;
 
+    /* Check for valid file input */
     if (argc == 1)
     {
         fprintf(stderr, "Please input an ICS file.");

@@ -65,6 +65,8 @@ void addEvent(FSM *fsm)
 */
 void processLine(FSM *fsm, char *line)
 {
+    printf("Current State: %d\n", fsm->currentState);
+    printf("Current Line: %s\n", line);
     switch (fsm->currentState)
     {
     case INITIAL_STATE:
@@ -107,11 +109,11 @@ void processLine(FSM *fsm, char *line)
         {
             fsm->currentEvent.summary = strdup(line + 8);
         }
-        else if (strncmp(line, "DTSTART;", 8) == 0)
-        {
+        else if (strncmp(line, "DTSTART;", 8) == 0 || strncmp(line, "DTSTART:", 8) == 0)
+        {   
             fsm->currentEvent.dtstart = strdup(line + 8);
         }
-        else if (strncmp(line, "DTEND;", 6) == 0)
+        else if (strncmp(line, "DTEND;", 6) == 0|| strncmp(line, "DTEND:", 6) == 0)
         {
             fsm->currentEvent.dtend = strdup(line + 6);
         }

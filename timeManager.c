@@ -7,10 +7,16 @@
 
 void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second);
 
-time_t processStringToTimeStruct(char *timeString) {
+time_t processStringToTimeStruct(char *timeString) 
+{
         // convert the dateStart and dateEnd to a time_t struct
-    // Start only after the first :
-    char* dateStartToken = strchr(timeString, ':') + 1;
+    char* dateStartToken;
+    // If the time string contains TZID, check after the first :
+    if (strstr(timeString, "TZID") != NULL) {
+        dateStartToken = strchr(timeString, ':') + 1;
+    } else {
+        dateStartToken = timeString;
+    }
     // The year is the first 4 characters
     char *year = (char *)malloc(4);
     strncpy(year, dateStartToken, 4);

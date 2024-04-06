@@ -40,12 +40,13 @@ void processRRule(char *rrule, char* dateStart, char* dateEnd)
     // Find the FREQ token in the RRule
     getRRuleAttributes(rrule, &fsm);
     // Print out all the attributes
-    printf("Frequency: %d\n", fsm.freq);
-    printf("Count: %d\n", fsm.count);
-    printf("Interval: %d\n", fsm.interval);
-    for (int i = 0; i < 7; i++) {
-        printf("ByDay: %d\n", fsm.byDay[i]);
-    }
+    // printf("Frequency: %d\n", fsm.freq);
+    // printf("Count: %d\n", fsm.count);
+    // printf("Interval: %d\n", fsm.interval);
+    // for (int i = 0; i < 7; i++) {
+    //     printf("ByDay: %d\n", fsm.byDay[i]);
+    // }
+    printf("Start Date: %s\n", dateStart);
     time_t startTime = processStringToTimeStruct(dateStart);
     printTime(&startTime);
 }
@@ -58,48 +59,49 @@ void getRRuleAttributes(char *rrule, RRuleFSM *fsm)
         printf("%s\n", token);
         token = strtok(NULL, ";");
     }
-    while (token != NULL) {
-        if (strcmp(token, "FREQ") == 0) {
-            // Get the value after = 
-            token = strtok(NULL, "=");
-            if (strcmp(token, "DAILY") == 0) {
-                fsm->freq = 1;
-            }
-            else if (strcmp(token, "WEEKLY") == 0) {
-                fsm->freq = 2;
-            }
-            else if (strcmp(token, "MONTHLY") == 0) {
-                fsm->freq = 3;
-            }
-            else if (strcmp(token, "YEARLY") == 0) {
-                fsm->freq = 4;
-            }
-        }
-        else if (strcmp(token, "COUNT") == 0) {
-            // Get the value after
-            token = strtok(NULL, "=");
-            fsm->count = atoi(token);
-        }
-        else if (strcmp(token, "INTERVAL") == 0) {
-            // Get the value after
-            token = strtok(NULL, "=");
-            fsm->interval = atoi(token);
-        }
-        else if (strcmp(token, "BYDAY") == 0) {
-            // Get the value after
-            token = strtok(NULL, "=");
-            char *day = strtok(token, ",");
-            while (day != NULL) {
-                int j = 0;
-                for (int i = 0; i < 7; i++) {
-                    if (strcmp(day, dayOfWeekStrings[i]) == 0) {
-                        // Assign enum DayOfweek to byDay
-                        fsm->byDay[j] = i;
-                        j++;
-                    }
-                }
-            }
-        }
-        token = strtok(NULL, ";");
-    }
+    
+    // while (token != NULL) {
+    //     if (strcmp(token, "FREQ") == 0) {
+    //         // Get the value after = 
+    //         token = strtok(NULL, "=");
+    //         if (strcmp(token, "DAILY") == 0) {
+    //             fsm->freq = 1;
+    //         }
+    //         else if (strcmp(token, "WEEKLY") == 0) {
+    //             fsm->freq = 2;
+    //         }
+    //         else if (strcmp(token, "MONTHLY") == 0) {
+    //             fsm->freq = 3;
+    //         }
+    //         else if (strcmp(token, "YEARLY") == 0) {
+    //             fsm->freq = 4;
+    //         }
+    //     }
+    //     else if (strcmp(token, "COUNT") == 0) {
+    //         // Get the value after
+    //         token = strtok(NULL, "=");
+    //         fsm->count = atoi(token);
+    //     }
+    //     else if (strcmp(token, "INTERVAL") == 0) {
+    //         // Get the value after
+    //         token = strtok(NULL, "=");
+    //         fsm->interval = atoi(token);
+    //     }
+    //     else if (strcmp(token, "BYDAY") == 0) {
+    //         // Get the value after
+    //         token = strtok(NULL, "=");
+    //         char *day = strtok(token, ",");
+    //         while (day != NULL) {
+    //             int j = 0;
+    //             for (int i = 0; i < 7; i++) {
+    //                 if (strcmp(day, dayOfWeekStrings[i]) == 0) {
+    //                     // Assign enum DayOfweek to byDay
+    //                     fsm->byDay[j] = i;
+    //                     j++;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     token = strtok(NULL, ";");
+    // }
 }

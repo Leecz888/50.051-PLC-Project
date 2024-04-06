@@ -2,6 +2,7 @@
 #include <stdlib.h>
 /* Additional custom function files*/
 #include "parser.h"
+#include "eventTranslator.h"
 
 int main(int argc, char **argv)
 {
@@ -25,6 +26,10 @@ int main(int argc, char **argv)
         {
             printf("Event %d:\n", j + 1);
             printEvent(ics.events[j]);
+            // processEvent function will eventually return a list of LLNodeData structs to be parsed into insert node
+            processEvent(ics.events[j]);
+            // InsertNode(LLNodeData data) will be called here
+
         }
         freeICS(&ics);
     }

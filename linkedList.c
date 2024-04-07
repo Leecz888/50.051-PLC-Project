@@ -57,6 +57,33 @@ void addLinkedListHead(timeLinkedList *list, LLNodeData *data, time_t startTime,
 }
 
 /*
+    Add a new node to the LinkedList
+*/
+void addNode(timeLinkedList *list, LLNodeData *data) 
+{
+    char* timeStr;
+    time_t currentTime;
+    /*
+       Convert start and end times from the LLNodeData struct to time_t structs
+    */
+    time_t startTime = convertStringToTime_t(data->timeStart);
+    time_t endTime = convertStringToTime_t(data->timeEnd);
+
+    /*
+        If linked list is empty, set the new node as the head
+    */
+    if (list->head == NULL) {
+        addLinkedListHead(list, data, startTime, endTime);
+        return;
+    } 
+    
+    currentTime = startTime;
+    while (difftime(currentTime, endTime) < 0) {
+
+    }
+}
+
+/*
     Print the linked list
 */
 void printList(timeLinkedList *list) 
@@ -76,7 +103,6 @@ void printList(timeLinkedList *list)
         current = current->next;
     }
 }
-
 
 /*
     Free the linked list
@@ -116,8 +142,14 @@ int main(int argc, char **argv)
     s1->timeStart = "20240313T103000";
     s1->timeEnd = "20240313T133000";
 
+    p1 = (LLNodeData*) malloc(sizeof(LLNodeData));
+    p1->studentID = 1005111;
+    p1->className = "PLC";
+    p1->timeStart = "20240313T103000";
+    p1->timeEnd = "20240313T133000";
+
     list = createLinkedList();
-    addLinkedListHead(list, s1, convertStringToTime_t(s1->timeStart), convertStringToTime_t(s1->timeEnd));
+    addNode(list, s1);
     printf("Size after addNode 1: %d\n", list->size);
     printList(list);
     freeList(list);

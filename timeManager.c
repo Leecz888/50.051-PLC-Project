@@ -58,10 +58,15 @@ time_t processStringToTimeStruct(char *timeString) {
 time_t convertStringToTime_t(char *timeString)
 {
     struct tm tm = {0};
-    if (strptime(timeString, "%Y%m%dT%H%M%S", &tm) == NULL) {
+    if (sscanf(timeString, "%4d%2d%2dT%2d%2d%2d", 
+               &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+               &tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
         // Parsing failed
         return -1; // or handle error as needed
     }
+
+    tm.tm_year -= 1900;  // Adjust for year (years since 1900)
+    tm.tm_mon -= 1;      // Adjust for month (0-based index)
 
     time_t time = mktime(&tm);
     if (time == -1) {

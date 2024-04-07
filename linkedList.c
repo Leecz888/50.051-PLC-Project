@@ -23,7 +23,8 @@ timeLinkedList *createLinkedList(void)
     Create LinkedList head element
 */
 void addLinkedListHead(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t endTime) 
-{
+{   
+    char* timeStr;
     /*
         Insert timenode based on 30 minute intervals
     */
@@ -38,7 +39,12 @@ void addLinkedListHead(timeLinkedList *list, LLNodeData *data, time_t startTime,
             Set the timeNode's time
         */
         newNode->startTime = currentTime;
-        newNode->time = ctime(&currentTime);
+        timeStr = ctime(&currentTime);
+        newNode->time = malloc(strlen(timeStr) + 1);
+        strcpy(newNode->time, timeStr);
+        /* 
+        printf("Time: %s\n", newNode->time); 
+        */
 
         /*
             Set the timeNode's data
@@ -94,6 +100,10 @@ void insertDataIntoTimeNode(timeNode *current, LLNodeData *data)
 */
 void addNode(timeLinkedList *list, LLNodeData *data) 
 {
+    char* timeStr;
+    timeNode *current;
+    timeNode *prev;
+    time_t currentTime;
     /*
        Convert start and end times from the LLNodeData struct to time_t structs
     */
@@ -109,14 +119,17 @@ void addNode(timeLinkedList *list, LLNodeData *data)
     } 
 
 
-    timeNode *current = list->head;
-    timeNode *prev = NULL;
+    current = list->head;
+    prev = NULL;
 
     /*
         Insert timenode based on 30 minute intervals
     */
-    time_t currentTime = startTime;
+    currentTime = startTime;
     while (difftime(currentTime, endTime) < 0) {
+        printf("Current Class: %s\n", current->data->className);
+        printf("Current Time: %s\n", current->time);
+        
         /*
             Traverse the linked list to find the correct position to insert the new node
         */
@@ -145,7 +158,10 @@ void addNode(timeLinkedList *list, LLNodeData *data)
                 Set the timeNode's time
             */
             newNode->startTime = currentTime;
-            newNode->time = ctime(&currentTime);
+            timeStr = ctime(&currentTime);
+            newNode->time = malloc(strlen(timeStr) + 1);
+            strcpy(newNode->time, timeStr);
+            printf("Time: %s\n", newNode->time); 
 
             /*
                 Set the timeNode's data
@@ -156,7 +172,7 @@ void addNode(timeLinkedList *list, LLNodeData *data)
             newNode->data->next = NULL;
 
             /*
-                Set the timeNode's next pointer
+                Set the timeNode's next pointer, given timenode -> current
             */
 
             newNode->next = current;
@@ -167,7 +183,6 @@ void addNode(timeLinkedList *list, LLNodeData *data)
             }
             prev = newNode;
         }
-
         currentTime += 1800;
         list->size++;
         
@@ -272,7 +287,16 @@ int main(int argc, char **argv)
     */
     list = createLinkedList();
 
+    printf("Size before addNode: %d\n", list->size);
     addNode(list, s1);
+    printf("Size after addNode 1: %d\n", list->size);
+    addNode(list, s2);
+    printf("Size after addNode 2: %d\n", list->size);
+    /*
+    addNode(list, s3);
+    addNode(list, p1);
+    addNode(list, p3);
+    */
     printList(list);
     printf("%d\n",list->size);
     freeList(list);
@@ -281,6 +305,9 @@ int main(int argc, char **argv)
         Free the payloads
     */
     free(s1);
-
+    free(s2);
+    free(s3);
+    free(p1);
+    free(p3);
     return 0;
 }

@@ -51,5 +51,6 @@ void addLinkedListHead(timeLinkedList *list, LLNodeData *data, time_t startTime,
 timeLinkedList *createLinkedList(void);
 void printList(timeLinkedList *list);
 void freeList(timeLinkedList *list);
+void addNode(timeLinkedList *list, LLNodeData *data);
 
 #endif

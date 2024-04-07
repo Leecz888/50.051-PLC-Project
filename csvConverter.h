@@ -1,0 +1,21 @@
+/* additional imports */
+#include "linkedList.h"
+#include "timeManager.h"
+
+#ifndef CSV_CONVERTER_H
+#define CSV_CONVERTER_H
+
+/* Placeholder constant for number of ICS files */
+#define NUM_FILES 2
+#define MAX_LENGTH 100
+
+/*
+    Function prototypes
+ */
+void printRowData(char rowData[NUM_FILES][MAX_LENGTH]);
+void writeArrayToCSV(FILE* file, const char (*array)[MAX_LENGTH], const time_t startTime, const time_t* endTime, size_t size);
+void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, size_t size);
+void process_timenode(timeNode* node, FILE* output, time_t* endTime);
+void processLinkedList(timeLinkedList* list, FILE* output);
+
+#endif

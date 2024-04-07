@@ -70,23 +70,34 @@ void addNode(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t en
         return;
     } 
 
+    /* Else, set cur pointer to head to traverse through linked list*/
     current = list->head;
     prev = NULL;
     /*
         Insert timenode based on 30 minute intervals
     */
     currentTime = startTime;
-    while (difftime(currentTime, endTime)<0) {
+    while (difftime(currentTime, endTime) < 0) {
+        /*
+        printf("Current Class: %s\n", current->data->className);
+        printf("Current->Time: %s, %s\n", ctime(&current->startTime), current->time);
+        printf("Data->Time: %s\n", ctime(&currentTime));
+        */
+        
         /*
             Traverse the linked list to find the correct position to insert the new node
         */
-        while (current != NULL && difftime(currentTime, current->startTime) > 0) {
+        /* Condition 1: newNode is later than currentNode -> continue traversing */
+        while (current != NULL && difftime(currentTime,  current->startTime) > 0) {
+            /*
+            printf("While: New Current: %s\n", current->time);
+            */
             prev = current;
             current = current->next;
         }
 
         /*
-            If timenode with starTime equal to currentTime is already in the list, insert data into the existing timenode
+            Condition 2: newNode->startTime == currentTime -> already in the LL -> insert data into the existing timenode
         */
         if (current != NULL && difftime(currentTime, current->startTime) == 0) {
             /*
@@ -114,6 +125,10 @@ void addNode(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t en
             newNode->time = malloc(strlen(timeStr) + 1);
             newNode->startTime = currentTime;
             strcpy(newNode->time, timeStr);
+            /*
+            printf("NewNode Time: %s\n", newNode->time); 
+            printf("NewNode Time: %s\n", ctime(&newNode->startTime)); 
+            */
 
             newNode->data = malloc(sizeof(dataNode));
             newNode->data->className = malloc(strlen(data->className) + 1);
@@ -180,7 +195,7 @@ void freeList(timeLinkedList *list)
     }
     free(list);
 }
-
+/*
 int main(int argc, char **argv)
 {
     LLNodeData* s1;
@@ -219,11 +234,15 @@ int main(int argc, char **argv)
     addNode(list, p1, convertStringToTime_t(p1->timeStart), convertStringToTime_t(p1->timeEnd));
     addNode(list, s2, convertStringToTime_t(s2->timeStart), convertStringToTime_t(s2->timeEnd));
     addNode(list, s3, convertStringToTime_t(s3->timeStart), convertStringToTime_t(s3->timeEnd));
-    printf("Size after addNode 1: %d\n", list->size);
     printList(list);
+    printf("Size: %d\n", list->size);
     freeList(list);
 
+    free(s3);
+    free(s2);
+    free(p1);
     free(s1);
 
     return 0;
 }
+*/

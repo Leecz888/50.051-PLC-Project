@@ -12,7 +12,7 @@ typedef struct {
     time_t timeEnd;
 } timings;
 
-int processEvent(Event event, LLNodeData **data);
+int processEvent(Event event, LLNodeData **data, char *studentID);
 int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsList);
 void getRRuleAttributes(char *rrule, RRuleAttributes *fsm);
 int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, RRuleAttributes *fsm);
@@ -22,7 +22,7 @@ void initRRuleAttributes(RRuleAttributes *fsm)
     fsm->currentState = INITIAL_RRULE_STATE;
     fsm->count = 0;
     fsm->interval = 0;
-    fsm->freq = time(0);
+    fsm->freq = 0;
     fsm->hasByDay = 0;
     fsm->hasUntil = 0;
     fsm->until = NULL;
@@ -30,7 +30,7 @@ void initRRuleAttributes(RRuleAttributes *fsm)
     fsm->sizeOfByDay = 0;
 }
 
-int processEvent(Event event, LLNodeData **dataList)
+int processEvent(Event event, LLNodeData **dataList, char *studentID)
 {
     *dataList = (LLNodeData *)malloc(sizeof(LLNodeData));
     // Initialise an empty list to append LLNodeData structs to
@@ -40,10 +40,9 @@ int processEvent(Event event, LLNodeData **dataList)
     {
         data->className = event.summary;
     }
-    if (event.description != NULL)
-    {
-        data->studentName = event.description;
-    }
+
+     data->studentID = atoi(studentID);
+
     if (event.rrule != NULL)
     {
         timings *timingsList;
@@ -64,14 +63,14 @@ int processEvent(Event event, LLNodeData **dataList)
     return LLNodeListSize;
 }
 
-// TODO: Fix parsing bugs
+/*  TODO: Fix parsing bugs */
 int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsList)
 {
     RRuleAttributes fsm;
     time_t* dateStartList;
 
     initRRuleAttributes(&fsm);
-    // Find the FREQ  token in the RRule
+    /* Find the FREQ  token in the RRule */
     getRRuleAttributes(rrule, &fsm);
     *timingsList = (timings *)malloc(sizeof(timings));
     // Print out all the attributes
@@ -92,7 +91,6 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
         printf("Case not handled yet\n"); 
     }
     return listSize;
-
 }
 
 void getRRuleAttributes(char *rrule, RRuleAttributes *fsm)
@@ -288,18 +286,3 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
     // printf("Num Days: %d\n", numDays);
     return numDays;
 }
-
-// int testEventTranslator()
-// {
-//     Event event = {
-//         .summary = "Test Event",
-//         .description = "This is a test event",
-//         .dtstart = "20210901T000000",
-//         .dtend = "20210901T010000",
-//         .rrule = "FREQ=WEEKLY;COUNT=5;INTERVAL=2;BYDAY=MO,WE,FR"
-//     };
-//     processEvent(event);
-
-
-//     return 0;
-// }

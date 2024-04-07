@@ -17,37 +17,25 @@ time_t processStringToTimeStruct(char *timeString)
     } else {
         dateStartToken = timeString;
     }
-    // The year is the first 4 characters
-    char *year = (char *)malloc(4);
-    strncpy(year, dateStartToken, 4);
-    // The month is the next 2 characters
-    char *month = (char *)malloc(2);
-    strncpy(month, dateStartToken + 4, 2);
-    // The day is the next 2 characters
-    char *day = (char *)malloc(2);
-    strncpy(day, dateStartToken + 6, 2);
-    // The time is the next 6 characters
-    char *time = (char *)malloc(6);
-    strncpy(time, dateStartToken + 9, 6);
-    // Separate the time into hour, minute, second
-    char *hour = (char *)malloc(2);
-    strncpy(hour, time, 2);
-    char *minute = (char *)malloc(2);
-    strncpy(minute, time + 2, 2);
-    char *second = (char *)malloc(2);
-    strncpy(second, time + 4, 2);
-    // create time_t with the above values
-    struct tm strDtStart = {
-        .tm_year = atoi(year) - 1900,
-        .tm_mon = atoi(month) - 1,
-        .tm_mday = atoi(day),
-        .tm_hour = atoi(hour),
-        .tm_min = atoi(minute),
-        .tm_sec = atoi(second)
-    };
-    time_t t = mktime(&strDtStart);
-    freeIndividualTimeStrings(year, month, day, hour, minute, second);
-    return t;
+    struct tm tm = {0};
+    if (sscanf(dateStartToken, "%4d%2d%2dT%2d%2d%2d", 
+               &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+               &tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
+        // Parsing failed
+        return -1; // or handle error as needed
+    }
+
+    tm.tm_year -= 1900;  // Adjust for year (years since 1900)
+    tm.tm_mon -= 1;      // Adjust for month (0-based index)
+
+    time_t time = mktime(&tm);
+    printf("Time: %s", ctime(&time));
+    if (time == -1) {
+        // Conversion failed
+        return -1; // or handle error as needed
+    }
+
+    return time;
 }
 
 /* Convert time_t back to string YYYYMMDDTHHMMSS */
@@ -57,7 +45,30 @@ char *processTimeStructToString(const time_t *time) {
     sprintf(timeString, "%d%02d%02dT%02d%02d%02d", timeStruct->tm_year + 1900, timeStruct->tm_mon + 1, timeStruct->tm_mday, timeStruct->tm_hour, timeStruct->tm_min, timeStruct->tm_sec);
     return timeString;
 }
+/*
+    Converts a string to a time_t
+*/
+time_t convertStringToTime_t(char *timeString)
+{
+    struct tm tm = {0};
+    if (sscanf(timeString, "%4d%2d%2dT%2d%2d%2d", 
+               &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+               &tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
+        // Parsing failed
+        return -1; // or handle error as needed
+    }
 
+    tm.tm_year -= 1900;  // Adjust for year (years since 1900)
+    tm.tm_mon -= 1;      // Adjust for month (0-based index)
+
+    time_t time = mktime(&tm);
+    if (time == -1) {
+        // Conversion failed
+        return -1; // or handle error as needed
+    }
+
+    return time;
+}
 
 void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second) {
     free(year);

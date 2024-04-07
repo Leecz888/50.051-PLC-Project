@@ -3,30 +3,33 @@
 /* Additional custom function files*/
 #include "parser.h"
 #include "eventTranslator.h"
+#include "linkedList.h"
 
 int main(int argc, char **argv)
 {
     int i, j;
     ICS ics;
-    char **studentNames;
+    char **studentIDS;
     /* Check for valid file input */
     if (argc == 1)
     {
         fprintf(stderr, "Please input an ICS file.");
         exit(EXIT_FAILURE);
     }
-    studentNames = (char **)malloc(sizeof(char *) * (argc - 1));
+    studentIDS = (char **)malloc(sizeof(char *) * (argc - 1));
+    /* Initialise linkedlist */
+    timeLinkedList *list = createLinkedList();
     for (i = 1; i < argc; i++)
     {
-        char* studentName = (char *)malloc(sizeof(char) * 20);
+        char* studentID = (char *)malloc(sizeof(char) * 20);
         ics = parseFile(argv[i]);
         
 
         printf("ICS Filename: %s\n", ics.filename);
          /* Ask user for student name corresponding to ics file */
         printf("Enter the name of the student that uses this ics file: ");
-        scanf("%s", studentName);
-        studentNames[i - 1] = studentName;
+        scanf("%s", studentID);
+        studentIDS[i - 1] = studentID;
         printf("No. Events: %d\n", ics.numEvents);
         for (j = 0; j < ics.numEvents; j++)
         {
@@ -35,23 +38,27 @@ int main(int argc, char **argv)
             printf("Event %d:\n", j + 1);
             printEvent(ics.events[j]);
             // processEvent function will eventually return a list of LLNodeData structs to be parsed into insert node
-            int numberOfNodes = processEvent(ics.events[j], &data);
+            int numberOfNodes = processEvent(ics.events[j], &data, studentID);
             for (int k = 0; k < numberOfNodes; k++)
             {
-                printf("Student Name: %s\n", data[k].studentName);
+                printf("Student Name: %d\n", data[k].studentID);
                 printf("Class Name: %s\n", data[k].className);
                 printf("Time Start: %s\n", data[k].timeStart);
                 printf("Time End: %s\n", data[k].timeEnd);
+                addNode(list, data, convertStringToTime_t(data[k].timeStart), convertStringToTime_t(data[k].timeEnd));
             }
-            // InsertNode(LLNodeData data) will be called here
+            printf("list size: %d\n", list->size);
+
 
         }
         /* print all the student names */
         for (int i = 0; i < argc - 1; i++)
         {
-            printf("Student Name: %s\n", studentNames[i]);
+            printf("Student Name: %s\n", studentIDS[i]);
         }
         freeICS(&ics);
     }
+    printList(list);
+    freeList(list);
     return 0;
 }

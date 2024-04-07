@@ -57,46 +57,19 @@ time_t processStringToTimeStruct(char *timeString) {
 */
 time_t convertStringToTime_t(char *timeString)
 {
-    char *dateStartToken;
-    char *year;
-    char *month;
-    char *day;
-    char *time;
-    char *hour;
-    char *minute;
-    char *second;
-    struct tm strDtStart;
-    time_t t;
-    dateStartToken = timeString;
-    /* The year is the first 4 characters */
-    year = (char *)malloc(4);
-    strncpy(year, dateStartToken, 4);
-    /* The month is the next 2 characters */
-    month = (char *)malloc(2);
-    strncpy(month, dateStartToken + 4, 2);
-    /* The day is the next 2 characters */
-    day = (char *)malloc(2);
-    strncpy(day, dateStartToken + 6, 2);
-    /* The time is the next 6 characters */
-    time = (char *)malloc(6);
-    strncpy(time, dateStartToken + 9, 6);
-    /* Separate the time into hour, minute, second */
-    hour = (char *)malloc(2);
-    strncpy(hour, time, 2);
-    minute = (char *)malloc(2);
-    strncpy(minute, time + 2, 2);
-    second = (char *)malloc(2);
-    strncpy(second, time + 4, 2);
-    /* create time_t with the above values */
-    strDtStart.tm_year = atoi(year) - 1900;
-    strDtStart.tm_mon = atoi(month) - 1;
-    strDtStart.tm_mday = atoi(day);
-    strDtStart.tm_hour = atoi(hour);
-    strDtStart.tm_min = atoi(minute);
-    strDtStart.tm_sec = atoi(second);
-    t = mktime(&strDtStart);
-    freeIndividualTimeStrings(year, month, day, hour, minute, second);
-    return t;
+    struct tm tm = {0};
+    if (strptime(timeString, "%Y%m%dT%H%M%S", &tm) == NULL) {
+        // Parsing failed
+        return -1; // or handle error as needed
+    }
+
+    time_t time = mktime(&tm);
+    if (time == -1) {
+        // Conversion failed
+        return -1; // or handle error as needed
+    }
+
+    return time;
 }
 
 void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second) {

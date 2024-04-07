@@ -88,42 +88,6 @@ void insertDataIntoTimeNode(timeNode *current, LLNodeData *data)
     current->data = newData;
 }
 
-/*
-    Add a new TimeNode to the LinkedList
-*/
-void addTimeNode(timeLinkedList *list, LLNodeData *data, time_t currentTime, timeNode *prev, timeNode *current) 
-{
-    /*
-        Create a new timeNode
-    */
-    timeNode *newNode = malloc(sizeof(timeNode));
-
-    /*
-        Set the timeNode's time
-    */
-    newNode->time = malloc(15);
-    strftime(newNode->time, 15, "%Y%m%dT%H%M%S", localtime(&currentTime));
-
-    /*
-        Set the timeNode's data
-    */
-    newNode->data = malloc(sizeof(dataNode));
-    newNode->data->className = data->className;
-    newNode->data->studentID = data->studentID;
-    newNode->data->next = NULL;
-
-    /*
-        Set the timeNode's next pointer
-    */
-
-    newNode->next = current;
-    if (prev == NULL) {
-        list->head = newNode;
-    } else {
-        prev->next = newNode;
-    }
-    prev = newNode;
-}
 
 /*
     Add a new node to the LinkedList
@@ -172,7 +136,36 @@ void addNode(timeLinkedList *list, LLNodeData *data)
             If the timeNode does not exist, create a new timeNode and insert it into the linked list
         */
         else {
-            addTimeNode(list, data, currentTime, prev, current);
+            /*
+                Create a new timeNode
+            */
+            timeNode *newNode = malloc(sizeof(timeNode));
+
+            /*
+                Set the timeNode's time
+            */
+            newNode->time = malloc(15);
+            strftime(newNode->time, 15, "%Y%m%dT%H%M%S", localtime(&currentTime));
+
+            /*
+                Set the timeNode's data
+            */
+            newNode->data = malloc(sizeof(dataNode));
+            newNode->data->className = data->className;
+            newNode->data->studentID = data->studentID;
+            newNode->data->next = NULL;
+
+            /*
+                Set the timeNode's next pointer
+            */
+
+            newNode->next = current;
+            if (prev == NULL) {
+                list->head = newNode;
+            } else {
+                prev->next = newNode;
+            }
+            prev = newNode;
         }
 
         currentTime += 1800;
@@ -231,6 +224,7 @@ int main(int argc, char **argv)
     LLNodeData* s1;
     LLNodeData* s2;
     LLNodeData* s3;
+    LLNodeData* p1;
     LLNodeData* p3;
     timeLinkedList *list;
 
@@ -261,6 +255,19 @@ int main(int argc, char **argv)
     p3->timeStart = "20240313T153000";
     p3->timeEnd = "20240313T173000";
 
+    p1 = (LLNodeData*) malloc(sizeof(LLNodeData));
+    p1->studentID = 1005111;
+    p1->className = "Capstone";
+    p1->timeStart = "20240313T153000";
+    p1->timeEnd = "20240313T173000";
+    
+    p3 = (LLNodeData*) malloc(sizeof(LLNodeData));
+    p3->studentID = 1005111;
+    p3->className = "Capstone";
+    p3->timeStart = "20240413T153000";
+    p3->timeEnd = "20240413T173000";
+
+
     /*
         Main function
     */
@@ -269,6 +276,7 @@ int main(int argc, char **argv)
     addNode(list, s1);
     addNode(list, s2);
     addNode(list, s3);
+    addNode(list, p1);
     addNode(list, p3);
     printList(list);
     freeList(list);

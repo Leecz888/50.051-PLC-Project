@@ -17,6 +17,7 @@ typedef struct timeLinkedList timeLinkedList;
 struct timeNode
 {
     char *time;
+    time_t startTime;
     timeNode *next;
     dataNode *data;
 };

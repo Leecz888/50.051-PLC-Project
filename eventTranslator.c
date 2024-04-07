@@ -18,49 +18,54 @@ void initRRuleFSM(RRuleFSM *fsm)
 
 void processEvent(Event event) 
 {
-    // Initialise an empty list to append LLNodeData structs to
+    /* Initialise an empty list to append LLNodeData structs to */
     LLNodeData *data = (LLNodeData *)malloc(sizeof(LLNodeData));
     if (event.summary != NULL) {
         data->className = event.summary;
     }
     if (event.description != NULL) {
-        data->studentID = event.description;
+        data->studentID = atoi(event.description);
     }
     if (event.rrule != NULL) {
         processRRule(event.rrule, event.dtstart, event.dtend);
     }
 }
 
-//TODO: Fix parsing bugs
+/* TODO: Fix parsing bugs */
 void processRRule(char *rrule, char* dateStart, char* dateEnd) 
 {
+    int i;
+    time_t startTime;
     RRuleFSM fsm;
 
     initRRuleFSM(&fsm);
-    // Find the FREQ token in the RRule
+    /* Find the FREQ token in the RRule */
     getRRuleAttributes(rrule, &fsm);
-    // Print out all the attributes
+    /* Print out all the attributes */
     printf("Frequency: %d\n", fsm.freq);
     printf("Count: %d\n", fsm.count);
     printf("Interval: %d\n", fsm.interval);
-    for (int i = 0; i < 7; i++) {
+    for (i = 0; i < 7; i++) {
         printf("ByDay: %d\n", fsm.byDay[i]);
     }
-    time_t startTime = processStringToTimeStruct(dateStart);
+    startTime = processStringToTimeStruct(dateStart);
     printTime(&startTime);
 }
 
 void getRRuleAttributes(char *rrule, RRuleFSM *fsm) 
-{
+{   
+    int i;
+    int j;
+    char *day;
     char *token = strtok(rrule, ";");
-    // Print out all the tokens
+    /* Print out all the tokens */
     while (token != NULL) {
         printf("%s\n", token);
         token = strtok(NULL, ";");
     }
     while (token != NULL) {
         if (strcmp(token, "FREQ") == 0) {
-            // Get the value after = 
+            /* Get the value after = */
             token = strtok(NULL, "=");
             if (strcmp(token, "DAILY") == 0) {
                 fsm->freq = 1;
@@ -76,24 +81,24 @@ void getRRuleAttributes(char *rrule, RRuleFSM *fsm)
             }
         }
         else if (strcmp(token, "COUNT") == 0) {
-            // Get the value after
+            /* Get the value after */
             token = strtok(NULL, "=");
             fsm->count = atoi(token);
         }
         else if (strcmp(token, "INTERVAL") == 0) {
-            // Get the value after
+            /* Get the value after */
             token = strtok(NULL, "=");
             fsm->interval = atoi(token);
         }
         else if (strcmp(token, "BYDAY") == 0) {
-            // Get the value after
+            /* Get the value after */
             token = strtok(NULL, "=");
-            char *day = strtok(token, ",");
+            day = strtok(token, ",");
             while (day != NULL) {
-                int j = 0;
-                for (int i = 0; i < 7; i++) {
+                j = 0;
+                for (i = 0; i < 7; i++) {
                     if (strcmp(day, dayOfWeekStrings[i]) == 0) {
-                        // Assign enum DayOfweek to byDay
+                        /* Assign enum DayOfweek to byDay */
                         fsm->byDay[j] = i;
                         j++;
                     }

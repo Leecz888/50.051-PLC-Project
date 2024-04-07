@@ -5,13 +5,22 @@
 #include "parser.h"
 #include <time.h>
 
+// Create enum for the state of the event processing
 typedef enum {
     INITIAL_RRULE_STATE,
-    CHECKING_FREQUENCY,
-    CHECKING_COUNT,
-    CHECKING_INTERVAL,
-    CHECKING_BYDAY
-} eventProcessingState;
+    RRULE_FREQ,
+    RRULE_UNTIL,
+    RRULE_BYDAY,
+    RRULE_COUNT,
+    RRULE_INTERVAL
+} eventProcessState;
+
+typedef enum {
+    DAILY,
+    WEEKLY,
+    MONTHLY,
+    YEARLY
+} freqType;
 
 // Create enum for days of the week
 typedef enum {
@@ -42,13 +51,17 @@ typedef struct {
 } LLNodeData;
 
 typedef struct {
-    eventProcessingState currentState;
+    eventProcessState currentState;
     int count;
     int interval;
     int freq;
-    dayOfWeek byDay[7];
-} RRuleFSM;
+    int hasByDay;
+    int hasUntil;
+    char* until;
+    int* byDay;
+    int sizeOfByDay;
+} RRuleAttributes;
 
-void processEvent(Event event);
+int processEvent(Event event, LLNodeData **data);
 
 #endif

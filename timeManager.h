@@ -3,5 +3,6 @@
 
 time_t processStringToTimeStruct(char* timeString);
 void printTime(const time_t *time);
+char *processTimeStructToString(const time_t *time);
 
 #endif

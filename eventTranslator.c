@@ -35,27 +35,24 @@ int processEvent(Event event, LLNodeData **dataList, char *studentID)
     int i;
     int LLNodeListSize;
     LLNodeData *data;
-    *dataList = (LLNodeData *)malloc(sizeof(LLNodeData));
     data = (LLNodeData *)malloc(sizeof(LLNodeData));
     LLNodeListSize = 0;
     if (event.summary != NULL)
     {
         data->className = event.summary;
     }
-
-     data->studentID = atoi(studentID);
-
+    data->studentID = atoi(studentID);
     if (event.rrule != NULL)
     {
         timings *timingsList;
         int sizeOfTimingsList = processRRule(event.rrule, event.dtstart, event.dtend, &timingsList);
+        *dataList = (LLNodeData *)malloc(sizeOfTimingsList * sizeof(LLNodeData));
         for (i = 0; i < sizeOfTimingsList; i++)
         {
             const time_t *timeStart = &timingsList[i].timeStart;
             const time_t *timeEnd = &timingsList[i].timeEnd;
             data->timeStart = processTimeStructToString(timeStart);
             data->timeEnd = processTimeStructToString(timeEnd);
-            *dataList = (LLNodeData *)realloc(*dataList, i + 1 * sizeof(LLNodeData));
             (*dataList)[i] = *data;
         }
         LLNodeListSize = sizeOfTimingsList;
@@ -76,8 +73,8 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
 
     initRRuleAttributes(&fsm);
     getRRuleAttributes(rrule, &fsm);
-    *timingsList = (timings *)malloc(sizeof(timings));
     listSize = createDateStartList(dateStart, dateEnd, &dateStartList, &fsm);
+    *timingsList = (timings *)malloc(listSize * sizeof(timings));
     printf("List Size: %d\n", listSize);
     endTime = processStringToTimeStruct(dateEnd);
     startTime = processStringToTimeStruct(dateStart);
@@ -86,10 +83,11 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
         for (i = 0; i < listSize; i++) {
             newTiming.timeStart = dateStartList[i];
             newTiming.timeEnd = dateStartList[i] + duration;
-            *timingsList = (timings *)realloc(*timingsList, i+1 * sizeof(timings));
             (*timingsList)[i] = newTiming;
         }
-    } else {
+    }
+    else 
+    {
         printf("Case not handled yet\n"); 
     }
     return listSize;
@@ -202,8 +200,21 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             startTime = mktime(timeStruct);
             (*dateStartList)[i] = startTime;
         }
-    }     
-
+    }
+    else if (fsm -> count == 0 && fsm -> interval == 0 && fsm-> until != 0 && (fsm-> sizeOfByDay == 0 || fsm-> sizeOfByDay == 1)) 
+    {
+        endTime = processStringToTimeStruct(fsm->until);
+        *dateStartList = (time_t *)malloc(sizeof(time_t));
+        (*dateStartList)[0] = startTime;
+        numDays += difftime(endTime, startTime) / (60 * 60 * 24 * 7);
+        *dateStartList = (time_t *)realloc(*dateStartList, numDays * sizeof(time_t));
+        for (i = 1; i < numDays; i++) {
+            struct tm *timeStruct = localtime(&startTime);
+            timeStruct->tm_mday += 7;
+            startTime = mktime(timeStruct);
+            (*dateStartList)[i] = startTime;
+        }
+    }
     else if (fsm-> count != 0 && fsm-> interval == 0 && fsm-> hasByDay == 0 && fsm->until == 0) 
     {
         *dateStartList = (time_t *)malloc(fsm->count * sizeof(time_t));

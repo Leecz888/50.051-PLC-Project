@@ -75,13 +75,13 @@ void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, s
 /*
     Process a single TimeNode
 */
-void process_timenode(timeNode* node, FILE* output, time_t* endTime) {
+void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** studentIDS, int numberOfStudents) {
     char rowData[NUM_FILES][MAX_LENGTH];
     time_t currentTime = node->startTime;
     dataNode* data = node->data;
     printf("Current: %s", ctime(&currentTime));
     printf("End: %s", ctime(endTime));
-
+    
     /* Populate rowData array with empty strings*/
     for (int i = 0; i < NUM_FILES; i++) {
         strncpy(rowData[i], "", MAX_LENGTH);
@@ -103,11 +103,29 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime) {
         *endTime = currentTime + 1800;
         
         /* traverse data node to populate rowData*/
+        /* Print all attributes in data */
+        
+        // while (data != NULL) {
+        //     printf("Student ID: %d\n", data->studentID);
+        //     printf("Class Name: %s\n", data->className);
+
+        //     /* append class name to array based on column index (id) */
+        //     strncpy(rowData[data->studentID], data->className, strlen(data->className));
+        //     data = data->next;
+        // }
         while (data != NULL) {
-            /* append class name to array based on column index (id) */
-            strncpy(rowData[data->studentID], data->className, strlen(data->className));
+
+            for (int i = 0; i < numberOfStudents; i++) {
+                printf("Student ID: %d\n", studentIDS[i]);
+                if (data->studentID == atoi(studentIDS[i])) {
+
+                    strncpy(rowData[i], data->className, strlen(data->className));
+                    break;
+                }
+            }
             data = data->next;
         }
+
         printRowData(rowData);
         printf("Current: %s", ctime(&currentTime));
         printf("New End: %s", ctime(endTime));
@@ -117,7 +135,7 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime) {
     return;
 }
 
-void process_linked_list(timeLinkedList *list) {
+void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStudents) {
     time_t* endTime = malloc(sizeof(time_t));
     
     /* set node head and end time of first timeNode */
@@ -133,13 +151,28 @@ void process_linked_list(timeLinkedList *list) {
         exit(1);
     }
 
+/* Form a string to formulate the rows in the csv */
+    char* fixedHeader = "Start,End,";
+    char* rowHeader = malloc(strlen(fixedHeader) + 1);
+    strcpy(rowHeader, fixedHeader);
+    for (int i = 0; i < numberOfStudents; i++) {
+        rowHeader = realloc(rowHeader, strlen(rowHeader) + strlen(studentIDS[i]) + 1);
+        strcat(rowHeader, studentIDS[i]);
+        if (i != numberOfStudents - 1) {
+            rowHeader = realloc(rowHeader, strlen(rowHeader) + 1);
+            strcat(rowHeader, ",");
+        }
+    }
+    printf("Row Header: %s\n", rowHeader);
     /* TODO: Write column names to CSV */
-    fprintf(output, "Start,End,\n");
+    fprintf(output, "%s\n", rowHeader);
+    /* Write studentIDs to CSV */
+
 
     /* Loop through linked list until NULL 
     */
     while (current != NULL) {
-        process_timenode(current, output, endTime);
+        process_timenode(current, output, endTime, studentIDS, numberOfStudents);
         current = current->next;
     }
     
@@ -148,7 +181,7 @@ void process_linked_list(timeLinkedList *list) {
     free(endTime);
 }
 
-
+/*
 int main(int argc, char **argv)
 {
     LLNodeData* s1;
@@ -187,8 +220,6 @@ int main(int argc, char **argv)
     addNode(list, p1, convertStringToTime_t(p1->timeStart), convertStringToTime_t(p1->timeEnd));
     addNode(list, s2, convertStringToTime_t(s2->timeStart), convertStringToTime_t(s2->timeEnd));
     addNode(list, s3, convertStringToTime_t(s3->timeStart), convertStringToTime_t(s3->timeEnd));
-    /*
-    */
     printList(list);
     printf("Size: %d\n", list->size);
 
@@ -202,3 +233,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+*/

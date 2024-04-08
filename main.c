@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "eventTranslator.h"
 #include "linkedList.h"
+#include "csvConverter.h"
 
 int main(int argc, char **argv)
 {
@@ -58,7 +59,8 @@ int main(int argc, char **argv)
         }
         freeICS(&ics);
     }
-    printList(list);
+    // printList(list);
+    processLinkedList(list, studentIDS, argc - 1);
     freeList(list);
     return 0;
 }

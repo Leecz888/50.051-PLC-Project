@@ -12,9 +12,6 @@
 /*
     Function prototypes
  */
-/*void printRowData(char rowData[NUM_FILES][MAX_LENGTH]);
-void writeArrayToCSV(FILE* file, const char (*array)[MAX_LENGTH], const time_t startTime, const time_t* endTime, size_t size);
-*/
 void printRowData(char** array, int size);
 void writeArrayToCSV(FILE* file, char** array, const time_t startTime, const time_t* endTime, size_t size);
 void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, size_t size);

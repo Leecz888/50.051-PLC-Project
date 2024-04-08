@@ -7,7 +7,31 @@
 #include "eventTranslator.h"
 #include "timeManager.h"
 
-const char *dayOfWeekStrings[] = {
+/* 
+    Define enum for frequency types
+    - DAILY: Daily recurrence
+    - WEEKLY: Weekly recurrence
+    - MONTHLY: Monthly recurrence
+    - YEARLY: Yearly recurrence
+*/
+typedef enum {
+    DAILY,
+    WEEKLY,
+    MONTHLY,
+    YEARLY
+} freqType;
+
+/* 
+    Define enum for day of week
+    - SU: Sunday
+    - MO: Monday
+    - TU: Tuesday
+    - WE: Wednesday
+    - TH: Thursday
+    - FR: Friday
+    - SA: Saturday
+*/
+static const char *dayOfWeekStrings[] = {
     "SU",
     "MO",
     "TU",
@@ -17,6 +41,33 @@ const char *dayOfWeekStrings[] = {
     "SA"
 };
 
+/* 
+    Define struct for RRule attributes
+    - count: Number of occurrences
+    - interval: Interval between occurrences
+    - freq: Frequency of recurrence
+    - hasByDay: Flag to check if BYDAY is present
+    - hasUntil: Flag to check if UNTIL is present
+    - until: End date of recurrence
+    - byDay: Array of days of the week
+    - sizeOfByDay: Size of the byDay array
+*/
+typedef struct {
+    int count;
+    int interval;
+    int freq;
+    int hasByDay;
+    int hasUntil;
+    char* until;
+    int* byDay;
+    int sizeOfByDay;
+} RRuleAttributes;
+
+/* 
+    Define struct for timings
+    - timeStart: Start time of the class
+    - timeEnd: End time of the class
+*/
 typedef struct {
     time_t timeStart;
     time_t timeEnd;
@@ -27,24 +78,30 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
 void getRRuleAttributes(char *rrule, RRuleAttributes *fsm);
 int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, RRuleAttributes *fsm);
 
-void initRRuleAttributes(RRuleAttributes *fsm)
+/* 
+    Initialse Rule Attributes
+*/
+void initRRuleAttributes(RRuleAttributes *rules)
 {
-    fsm->currentState = INITIAL_RRULE_STATE;
-    fsm->count = 0;
-    fsm->interval = 0;
-    fsm->freq = 0;
-    fsm->hasByDay = 0;
-    fsm->hasUntil = 0;
-    fsm->until = NULL;
-    fsm->byDay = 0;
-    fsm->sizeOfByDay = 0;
+    rules->count = 0;
+    rules->interval = 0;
+    rules->freq = 0;
+    rules->hasByDay = 0;
+    rules->hasUntil = 0;
+    rules->until = NULL;
+    rules->byDay = 0;
+    rules->sizeOfByDay = 0;
 }
 
+/* 
+    Process the event and return the number of LLNodeData elements
+*/
 int processEvent(Event event, LLNodeData **dataList, char *studentID)
 {
     int i;
     int LLNodeListSize;
     LLNodeData *data;
+    /* Allocate size for a single LLNode */
     data = (LLNodeData *)malloc(sizeof(LLNodeData));
     LLNodeListSize = 0;
     if (event.summary != NULL)
@@ -55,7 +112,9 @@ int processEvent(Event event, LLNodeData **dataList, char *studentID)
     if (event.rrule != NULL)
     {
         timings *timingsList;
+        /* return a list of start timings generated from the RRULE */
         int sizeOfTimingsList = processRRule(event.rrule, event.dtstart, event.dtend, &timingsList);
+        /* Malloc the dataList to the number of LLNodes that corresponds to the number of timings */
         *dataList = (LLNodeData *)malloc(sizeOfTimingsList * sizeof(LLNodeData));
         for (i = 0; i < sizeOfTimingsList; i++)
         {
@@ -63,13 +122,18 @@ int processEvent(Event event, LLNodeData **dataList, char *studentID)
             const time_t *timeEnd = &timingsList[i].timeEnd;
             data->timeStart = processTimeStructToString(timeStart);
             data->timeEnd = processTimeStructToString(timeEnd);
+            /* Add LLNode data to the list */
             (*dataList)[i] = *data;
         }
         LLNodeListSize = sizeOfTimingsList;
     }
+    /* Return the total number of nodes generated */
     return LLNodeListSize;
 }
 
+/*
+    Process the RRULE in the event and return the number of timings generated
+*/
 int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsList)
 {
     int i;
@@ -77,19 +141,22 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
     int duration;
     time_t endTime;
     time_t startTime;
-    RRuleAttributes fsm;
+    RRuleAttributes rules;
     time_t* dateStartList;
     timings newTiming;
-
-    initRRuleAttributes(&fsm);
-    getRRuleAttributes(rrule, &fsm);
-    listSize = createDateStartList(dateStart, dateEnd, &dateStartList, &fsm);
+    initRRuleAttributes(&rules);
+    /* Get the RRule attributes from the RRule String */
+    getRRuleAttributes(rrule, &rules);
+    /* Create a list of start timings based on the RRule attributes */
+    listSize = createDateStartList(dateStart, dateEnd, &dateStartList, &rules);
+    /* Malloc the timingsList to the number of timings */
     *timingsList = (timings *)malloc(listSize * sizeof(timings));
-    printf("List Size: %d\n", listSize);
     endTime = processStringToTimeStruct(dateEnd);
     startTime = processStringToTimeStruct(dateStart);
+    /* Get the duration for a single session of the event */
     duration = difftime(endTime, startTime);
     if (listSize > 0) {
+        /* Add the timeStart timeEnd pair to the timingsList. Each pair corresponds to a session */
         for (i = 0; i < listSize; i++) {
             newTiming.timeStart = dateStartList[i];
             newTiming.timeEnd = dateStartList[i] + duration;
@@ -100,59 +167,68 @@ int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsL
     {
         printf("Case not handled yet\n"); 
     }
+    /* Return the total number of sessions generated from the RRule */
     return listSize;
 }
 
-void getRRuleAttributes(char *rrule, RRuleAttributes *fsm)
+/* 
+    Get the RRule attributes from the RRule string
+*/
+void getRRuleAttributes(char *rrule, RRuleAttributes *rules)
 {
     int i;
     int j;
     char *byDay;
     char *day;
+    /* Get each RRule using ; as a delimiter */
     char *token = strtok(rrule, ";");
     while (token != NULL)
     {
-        printf("%s\n", token);
+        /* Check if the RRule contains FREQ */
         if (strstr(token, "FREQ") != NULL)
         {
             char *freq = strchr(token, '=') + 1;
             if (strcmp(freq, "DAILY") == 0)
             {
-                fsm->freq = 0;
+                rules->freq = 0;
             }
             else if (strcmp(freq, "WEEKLY") == 0)
             {
-                fsm->freq = 1;
+                rules->freq = 1;
             }
             else if (strcmp(freq, "MONTHLY") == 0)
             {
-                fsm->freq = 2;
+                rules->freq = 2;
             }
             else if (strcmp(freq, "YEARLY") == 0)
             {
-                fsm->freq = 3;
+                rules->freq = 3;
             }
         }
+        /* Check if the RRule contains COUNT */
         else if (strstr(token, "COUNT") != NULL)
         {
             char *count = strchr(token, '=') + 1;
-            fsm->count = atoi(count);
+            rules->count = atoi(count);
         }
+        /* Check if the RRule contains INTERVAL */
         else if (strstr(token, "INTERVAL") != NULL)
         {
             char *interval = strchr(token, '=') + 1;
-            fsm->interval = atoi(interval);
+            rules->interval = atoi(interval);
         }
+        /* Check if the RRule contains UNTIL */
         else if (strstr(token, "UNTIL") != NULL)
         {
             char *until = strchr(token, '=') + 1;
-            fsm->hasUntil = 1;
-            fsm->until = until;
+            rules->hasUntil = 1;
+            rules->until = until;
 
         }
+        /* Check if the RRule contains BYDAY */
         else if (strstr(token, "BYDAY") != NULL)
         {
-            fsm-> byDay = (int *)malloc(sizeof(int));
+            rules-> byDay = (int *)malloc(sizeof(int));
             byDay = strchr(token, '=') + 1;
             day = strtok(byDay, ",");
             j = 0;
@@ -162,10 +238,10 @@ void getRRuleAttributes(char *rrule, RRuleAttributes *fsm)
                 {
                     if (strcmp(day, dayOfWeekStrings[i]) == 0)
                     {
-                        fsm->byDay = (int *)realloc(fsm->byDay, (i + 1) * sizeof(int));
-                        fsm->byDay[j] = i;
-                        printf("Day: %d\n", fsm->byDay[j]);
-                        fsm->sizeOfByDay += 1;
+                        rules->byDay = (int *)realloc(rules->byDay, (i + 1) * sizeof(int));
+                        rules->byDay[j] = i;
+                        printf("Day: %d\n", rules->byDay[j]);
+                        rules->sizeOfByDay += 1;
                         j++;
                         break;
                     }
@@ -177,27 +253,20 @@ void getRRuleAttributes(char *rrule, RRuleAttributes *fsm)
     }
 }
 
-int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, RRuleAttributes *fsm)
+/*
+    Create a list of start timings based on the RRule attributes
+*/
+int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, RRuleAttributes *rules)
 {
     time_t startTime;
     time_t endTime;
     int numDays = 1;
     int i;
-
-    printf("Count: %d\n", fsm->count);
-    printf("Interval: %d\n", fsm->interval);
-    printf("Freq: %d\n", fsm->freq);
-    printf("HasByDay: %d\n", fsm->hasByDay);
-    printf("Size of ByDay: %d\n", fsm->sizeOfByDay);
-    printf("ByDay: ");
-    for (i = 0; i < fsm->sizeOfByDay; i++) {
-        printf("%d ", fsm->byDay[i]);
-    }
     startTime = processStringToTimeStruct(dateStart);
     endTime = processStringToTimeStruct(dateEnd);
 
 
-    if (fsm->count == 0 && fsm->interval == 0 && fsm-> hasByDay == 0 && fsm->until == 0) 
+    if (rules->count == 0 && rules->interval == 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
         *dateStartList = (time_t *)malloc(sizeof(time_t));
         (*dateStartList)[0] = startTime;
@@ -211,9 +280,9 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             (*dateStartList)[i] = startTime;
         }
     }
-    else if (fsm -> count == 0 && fsm -> interval == 0 && fsm-> until != 0 && (fsm-> sizeOfByDay == 0 || fsm-> sizeOfByDay == 1)) 
+    else if (rules -> count == 0 && rules -> interval == 0 && rules-> until != 0 && (rules-> sizeOfByDay == 0 || rules-> sizeOfByDay == 1)) 
     {
-        endTime = processStringToTimeStruct(fsm->until);
+        endTime = processStringToTimeStruct(rules->until);
         *dateStartList = (time_t *)malloc(sizeof(time_t));
         (*dateStartList)[0] = startTime;
         numDays += difftime(endTime, startTime) / (60 * 60 * 24 * 7);
@@ -225,40 +294,29 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             (*dateStartList)[i] = startTime;
         }
     }
-    else if (fsm-> count != 0 && fsm-> interval == 0 && fsm-> hasByDay == 0 && fsm->until == 0) 
+    else if (rules-> count != 0 && rules-> interval == 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
-        *dateStartList = (time_t *)malloc(fsm->count * sizeof(time_t));
+        *dateStartList = (time_t *)malloc(rules->count * sizeof(time_t));
         (*dateStartList)[0] = startTime;
-        for (i = 1; i < fsm->count; i++) {
+        for (i = 1; i < rules->count; i++) {
             struct tm *timeStruct = localtime(&startTime);
             timeStruct->tm_mday += 7;
             startTime = mktime(timeStruct);
              (*dateStartList)[i] = startTime;
         }
-        numDays = fsm->count;
-    } else if (fsm-> count == 0 && fsm-> interval != 0 && fsm-> hasByDay == 0 && fsm->until == 0) 
+        numDays = rules->count;
+    } else if (rules-> count == 0 && rules-> interval != 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
-        numDays += difftime(endTime, startTime) / (60 * 60 * 24 * 7 * fsm->interval);
+        numDays += difftime(endTime, startTime) / (60 * 60 * 24 * 7 * rules->interval);
         *dateStartList = (time_t *)malloc(numDays * sizeof(time_t));
         (*dateStartList)[0] = startTime;
         for (i = 1; i < numDays; i++) {
             struct tm *timeStruct = localtime(&startTime);
-            timeStruct->tm_mday += (7 * fsm->interval);
+            timeStruct->tm_mday += (7 * rules->interval);
             startTime = mktime(timeStruct);
             (*dateStartList)[i] = startTime;
         }
-    } else if (fsm-> count == 0 && fsm-> interval == 0 && fsm->sizeOfByDay > 0 && fsm->until == 0) 
-    {
-        printf("size of byday: %d\n", fsm->sizeOfByDay);
-        /* print by day */
-        for (i = 0; i < fsm->sizeOfByDay; i++) {
-            if (fsm->byDay[i] == 1) {
-                printf("Day: %s\n", dayOfWeekStrings[i]);
-            }
-        }
-        return 0;
     } 
-
     else {
         return -1;
     }

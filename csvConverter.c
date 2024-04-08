@@ -18,6 +18,7 @@ void printRowData(char** array, int size) {
     }
 }
 
+
 void writeArrayToCSV(FILE* file, char** array, const time_t startTime, const time_t* endTime, size_t size) {
     size_t i;
     char* startDate;
@@ -87,8 +88,6 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
     }
     currentTime = node->startTime;
     data = node->data;
-    printf("Current: %s", ctime(&currentTime));
-    printf("End: %s", ctime(endTime));
     
     /* Populate rowData array with empty strings*/
     
@@ -98,7 +97,6 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
 
     /* Check if start time corresponds to end time*/
     if (difftime(currentTime, *endTime) > 0) {
-        printf("writing free\n");
         /* write to CSV as 'FREE' time if there's a time gap*/
         writeFreetoCSV(output, endTime, currentTime, numberOfStudents);
         /* set new endTime pointer */
@@ -107,7 +105,6 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
 
     /* Else, timeslot is occupied by someone */
     if (difftime(currentTime, *endTime) == 0) {
-        printf("writing occupied\n");
         /* set new endTime pointer */
         *endTime = currentTime + 1800;
         
@@ -115,7 +112,6 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
         /* Print all attributes in data */
         while (data != NULL) {
             for (i = 0; i < numberOfStudents; i++) {
-                printf("Student ID: %s\n", studentIDS[i]);
                 if (data->studentID == atoi(studentIDS[i])) {
                     strncpy(rowData[i], data->className, strlen(data->className));
                     break;
@@ -123,11 +119,8 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
             }
             data = data->next;
         }
-        printRowData(rowData, numberOfStudents);
-        printf("Current: %s", ctime(&currentTime));
-        printf("New End: %s", ctime(endTime));
+        /* printRowData(rowData, numberOfStudents); */
         writeArrayToCSV(output, rowData, currentTime, endTime, numberOfStudents);
-        printf("-----\n");
         /* free row data */
         for (i = 0; i < numberOfStudents; i++) {
             free(rowData[i]);
@@ -157,7 +150,7 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
         exit(1);
     }
 
-/* Form a string to formulate the rows in the csv */
+/* Form a string to formulate the rows in the csv: 'Start, End, StudentID1, StudentID2...' */
     fixedHeader = "Start,End,";
     rowHeader = malloc(strlen(fixedHeader) + 1);
     strcpy(rowHeader, fixedHeader);
@@ -169,10 +162,8 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
             strcat(rowHeader, ",");
         }
     }
-    printf("Row Header: %s\n", rowHeader);
-    /* TODO: Write column names to CSV */
+    /* Write column names to CSV */
     fprintf(output, "%s\n", rowHeader);
-    /* Write studentIDs to CSV */
 
 
     /* Loop through linked list until NULL */

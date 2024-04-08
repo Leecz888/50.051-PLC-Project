@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
         printf("ICS Filename: %s\n", ics.filename);
          /* Ask user for student name corresponding to ics file */
-        printf("Enter the name of the student that uses this ics file: ");
+        printf("Enter the ID of the student that uses this ics file: ");
         scanf("%s", studentID);
         studentIDS[i - 1] = studentID;
         printf("No. Events: %d\n", ics.numEvents);

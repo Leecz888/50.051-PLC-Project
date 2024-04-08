@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     /* Check for valid file input */
     if (argc == 1)
     {
-        fprintf(stderr, "Please input an ICS file.");
+        fprintf(stderr, "Please input an ICS file: e.g. ./main <filename>.ics <filename>.ics\n");
         exit(EXIT_FAILURE);
     }
     studentIDS = (char **)malloc(sizeof(char *) * (argc - 1));
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         do {
             printf("ICS Filename: %s\n", ics.filename);
             /* Ask user for student name corresponding to ics file */
-            printf("Enter the ID of the student that uses this ics file: ");
+            printf("Enter the ID of the student that uses this ICS file: ");
 
             scanf("%s", studentID);
             if (atoi(studentID) == 0)

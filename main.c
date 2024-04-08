@@ -31,7 +31,14 @@ int main(int argc, char **argv)
         printf("ICS Filename: %s\n", ics.filename);
          /* Ask user for student name corresponding to ics file */
         printf("Enter the ID of the student that uses this ics file: ");
+
         scanf("%s", studentID);
+        while (atoi(studentID) == 0)
+        {
+            printf("Please enter a valid student ID: ");
+            scanf("%s", studentID);
+        }
+
         studentIDS[i - 1] = studentID;
         printf("No. Events: %d\n", ics.numEvents);
         for (j = 0; j < ics.numEvents; j++)

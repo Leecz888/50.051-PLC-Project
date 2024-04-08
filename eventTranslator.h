@@ -37,16 +37,6 @@ typedef enum {
     SA
 } dayOfWeek;
 
-static const char *dayOfWeekStrings[] = {
-    "SU",
-    "MO",
-    "TU",
-    "WE",
-    "TH",
-    "FR",
-    "SA"
-};
-
 typedef struct {
     char *timeStart;
     char *timeEnd;
@@ -66,6 +56,7 @@ typedef struct {
     int sizeOfByDay;
 } RRuleAttributes;
 
+extern const char *dayOfWeekStrings[];
 int processEvent(Event event, LLNodeData **data, char* studentID);
 
 #endif

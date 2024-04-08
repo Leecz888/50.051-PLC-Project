@@ -7,6 +7,16 @@
 #include "eventTranslator.h"
 #include "timeManager.h"
 
+const char *dayOfWeekStrings[] = {
+    "SU",
+    "MO",
+    "TU",
+    "WE",
+    "TH",
+    "FR",
+    "SA"
+};
+
 typedef struct {
     time_t timeStart;
     time_t timeEnd;

@@ -61,6 +61,7 @@ typedef struct {
 } FSM;
 
 /* Functions */
+char *strdup(const char *s);
 Event createEvent(void);
 void initFSM(FSM *fsm, char *filename);
 void addEvent(FSM *fsm);

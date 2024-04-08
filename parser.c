@@ -3,6 +3,15 @@
 #include <string.h>
 #include "parser.h"
 
+char *strdup(const char *s) {
+    size_t size = strlen(s) + 1;
+    char *p = malloc(size);
+    if (p != NULL) {
+        memcpy(p, s, size);
+    }
+    return p;
+}
+
 /*
     Creates a new Event struct
 */

@@ -167,6 +167,12 @@ ICS parseFile(char *filename)
         {
             line[length - 1] = '\0';
         }
+        
+        /* For MacOS/Linux */
+        if(line[length - 2] == '\r')
+        {
+            line[length - 2] = '\0'; 
+        }
 
         processLine(&fsm, line);
 

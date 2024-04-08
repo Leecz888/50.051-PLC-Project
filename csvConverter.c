@@ -12,7 +12,8 @@
 #define MAX_LENGTH 100
 
 void printRowData(char rowData[NUM_FILES][MAX_LENGTH]) {
-    for (int i = 0; i < NUM_FILES; i++) {
+    int i;
+    for (i = 0; i < NUM_FILES; i++) {
         printf("rowData[%d]: %s\n", i, rowData[i]);
     }
 }
@@ -76,6 +77,7 @@ void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, s
     Process a single TimeNode
 */
 void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** studentIDS, int numberOfStudents) {
+    int i;
     char rowData[NUM_FILES][MAX_LENGTH];
     time_t currentTime = node->startTime;
     dataNode* data = node->data;
@@ -83,7 +85,7 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
     printf("End: %s", ctime(endTime));
     
     /* Populate rowData array with empty strings*/
-    for (int i = 0; i < NUM_FILES; i++) {
+    for (i = 0; i < NUM_FILES; i++) {
         strncpy(rowData[i], "", MAX_LENGTH);
     }
 
@@ -104,19 +106,9 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
         
         /* traverse data node to populate rowData*/
         /* Print all attributes in data */
-        
-        // while (data != NULL) {
-        //     printf("Student ID: %d\n", data->studentID);
-        //     printf("Class Name: %s\n", data->className);
-
-        //     /* append class name to array based on column index (id) */
-        //     strncpy(rowData[data->studentID], data->className, strlen(data->className));
-        //     data = data->next;
-        // }
         while (data != NULL) {
-
-            for (int i = 0; i < numberOfStudents; i++) {
-                printf("Student ID: %d\n", studentIDS[i]);
+            for (i = 0; i < numberOfStudents; i++) {
+                printf("Student ID: %s\n", studentIDS[i]);
                 if (data->studentID == atoi(studentIDS[i])) {
 
                     strncpy(rowData[i], data->className, strlen(data->className));
@@ -136,6 +128,10 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
 }
 
 void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStudents) {
+    int i;
+    char* fixedHeader;
+    char* rowHeader;
+    FILE *output;
     time_t* endTime = malloc(sizeof(time_t));
     
     /* set node head and end time of first timeNode */
@@ -143,7 +139,7 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
     *endTime = current->startTime;
 
     /* Open the output CSV file */
-    FILE *output = fopen("output.csv", "w");
+    output = fopen("output.csv", "w");
     
     /* Check for invalid CSV file opening */
     if (output == NULL) {
@@ -152,10 +148,10 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
     }
 
 /* Form a string to formulate the rows in the csv */
-    char* fixedHeader = "Start,End,";
-    char* rowHeader = malloc(strlen(fixedHeader) + 1);
+    fixedHeader = "Start,End,";
+    rowHeader = malloc(strlen(fixedHeader) + 1);
     strcpy(rowHeader, fixedHeader);
-    for (int i = 0; i < numberOfStudents; i++) {
+    for (i = 0; i < numberOfStudents; i++) {
         rowHeader = realloc(rowHeader, strlen(rowHeader) + strlen(studentIDS[i]) + 1);
         strcat(rowHeader, studentIDS[i]);
         if (i != numberOfStudents - 1) {
@@ -169,8 +165,7 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
     /* Write studentIDs to CSV */
 
 
-    /* Loop through linked list until NULL 
-    */
+    /* Loop through linked list until NULL */
     while (current != NULL) {
         process_timenode(current, output, endTime, studentIDS, numberOfStudents);
         current = current->next;
@@ -180,57 +175,3 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
     fclose(output);
     free(endTime);
 }
-
-/*
-int main(int argc, char **argv)
-{
-    LLNodeData* s1;
-    LLNodeData* s2;
-    LLNodeData* s3;
-    LLNodeData* p1;
-    LLNodeData* p3;
-    timeLinkedList *list;
-
-    s1 = (LLNodeData*) malloc(sizeof(LLNodeData));
-    s1->studentID = 0;
-    s1->className = "PLC";
-    s1->timeStart = "20240313T103000";
-    s1->timeEnd = "20240313T133000";
-
-    p1 = (LLNodeData*) malloc(sizeof(LLNodeData));
-    p1->studentID = 1;
-    p1->className = "PLC";
-    p1->timeStart = "20240313T103000";
-    p1->timeEnd = "20240313T133000";
-
-    s2 = (LLNodeData*) malloc(sizeof(LLNodeData));
-    s2->studentID = 0;
-    s2->className = "DB";
-    s2->timeStart = "20240313T153000";
-    s2->timeEnd = "20240313T183000";
-
-    s3 = (LLNodeData*) malloc(sizeof(LLNodeData));
-    s3->studentID = 0;
-    s3->className = "HASS";
-    s3->timeStart = "20240301T153000";
-    s3->timeEnd = "20240301T183000";
-
-    list = createLinkedList();
-    addNode(list, s1, convertStringToTime_t(s1->timeStart), convertStringToTime_t(s1->timeEnd));
-    addNode(list, p1, convertStringToTime_t(p1->timeStart), convertStringToTime_t(p1->timeEnd));
-    addNode(list, s2, convertStringToTime_t(s2->timeStart), convertStringToTime_t(s2->timeEnd));
-    addNode(list, s3, convertStringToTime_t(s3->timeStart), convertStringToTime_t(s3->timeEnd));
-    printList(list);
-    printf("Size: %d\n", list->size);
-
-    process_linked_list(list);
-    freeList(list);
-
-    free(s3);
-    free(s2);
-    free(p1);
-    free(s1);
-
-    return 0;
-}
-*/

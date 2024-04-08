@@ -8,9 +8,12 @@
 
 int main(int argc, char **argv)
 {
-    int i, j;
+    int i, j, k;
     ICS ics;
     char **studentIDS;
+    char* studentID;
+    timeLinkedList *list;
+    int numberOfNodes;
     /* Check for valid file input */
     if (argc == 1)
     {
@@ -19,12 +22,11 @@ int main(int argc, char **argv)
     }
     studentIDS = (char **)malloc(sizeof(char *) * (argc - 1));
     /* Initialise linkedlist */
-    timeLinkedList *list = createLinkedList();
+    list = createLinkedList();
     for (i = 1; i < argc; i++)
     {
-        char* studentID = (char *)malloc(sizeof(char) * 20);
+        studentID = (char *)malloc(sizeof(char) * 20);
         ics = parseFile(argv[i]);
-        
 
         printf("ICS Filename: %s\n", ics.filename);
          /* Ask user for student name corresponding to ics file */
@@ -38,9 +40,8 @@ int main(int argc, char **argv)
             LLNodeData *data;
             printf("Event %d:\n", j + 1);
             printEvent(ics.events[j]);
-            // processEvent function will eventually return a list of LLNodeData structs to be parsed into insert node
-            int numberOfNodes = processEvent(ics.events[j], &data, studentID);
-            for (int k = 0; k < numberOfNodes; k++)
+            numberOfNodes = processEvent(ics.events[j], &data, studentID);
+            for (k = 0; k < numberOfNodes; k++)
             {
                 printf("Student Name: %d\n", data[k].studentID);
                 printf("Class Name: %s\n", data[k].className);
@@ -53,13 +54,7 @@ int main(int argc, char **argv)
 
         }
         /* print all the student names */
-        for (int i = 0; i < argc - 1; i++)
-        {
-            printf("Student Name: %s\n", studentIDS[i]);
-        }
-        freeICS(&ics);
     }
-    // printList(list);
     processLinkedList(list, studentIDS, argc - 1);
     freeList(list);
     return 0;

@@ -5,7 +5,9 @@
 #include "parser.h"
 #include <time.h>
 
-// Create enum for the state of the event processing
+/*
+    Create enum for the state of the event processing
+*/ 
 typedef enum {
     INITIAL_RRULE_STATE,
     RRULE_FREQ,
@@ -22,7 +24,9 @@ typedef enum {
     YEARLY
 } freqType;
 
-/* Create enum for days of the week */
+/* 
+    Create enum for days of the week 
+*/
 typedef enum {
     SU,
     MO,

@@ -11,14 +11,14 @@
 #define NUM_FILES 2
 #define MAX_LENGTH 100
 
-void printRowData(char rowData[NUM_FILES][MAX_LENGTH]) {
+void printRowData(char** array, int size) {
     int i;
-    for (i = 0; i < NUM_FILES; i++) {
-        printf("rowData[%d]: %s\n", i, rowData[i]);
+    for (i = 0; i < size; i++) {
+        printf("rowData[%d]: %s\n", i, array[i]);
     }
 }
 
-void writeArrayToCSV(FILE* file, const char (*array)[MAX_LENGTH], const time_t startTime, const time_t* endTime, size_t size) {
+void writeArrayToCSV(FILE* file, char** array, const time_t startTime, const time_t* endTime, size_t size) {
     size_t i;
     char* startDate;
     char* endDate;
@@ -78,14 +78,21 @@ void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, s
 */
 void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** studentIDS, int numberOfStudents) {
     int i;
-    char rowData[NUM_FILES][MAX_LENGTH];
-    time_t currentTime = node->startTime;
-    dataNode* data = node->data;
+    char** rowData;
+    time_t currentTime;
+    dataNode* data;
+    rowData = malloc(numberOfStudents * sizeof(char*));
+    for (i = 0; i < numberOfStudents; i++) {
+        rowData[i] = malloc(MAX_LENGTH * sizeof(char));
+    }
+    currentTime = node->startTime;
+    data = node->data;
     printf("Current: %s", ctime(&currentTime));
     printf("End: %s", ctime(endTime));
     
     /* Populate rowData array with empty strings*/
-    for (i = 0; i < NUM_FILES; i++) {
+    
+    for (i = 0; i < numberOfStudents; i++) {
         strncpy(rowData[i], "", MAX_LENGTH);
     }
 
@@ -93,7 +100,7 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
     if (difftime(currentTime, *endTime) > 0) {
         printf("writing free\n");
         /* write to CSV as 'FREE' time if there's a time gap*/
-        writeFreetoCSV(output, endTime, currentTime, NUM_FILES);
+        writeFreetoCSV(output, endTime, currentTime, numberOfStudents);
         /* set new endTime pointer */
         *endTime = currentTime;
     }
@@ -110,19 +117,22 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
             for (i = 0; i < numberOfStudents; i++) {
                 printf("Student ID: %s\n", studentIDS[i]);
                 if (data->studentID == atoi(studentIDS[i])) {
-
                     strncpy(rowData[i], data->className, strlen(data->className));
                     break;
                 }
             }
             data = data->next;
         }
-
-        printRowData(rowData);
+        printRowData(rowData, numberOfStudents);
         printf("Current: %s", ctime(&currentTime));
         printf("New End: %s", ctime(endTime));
-        writeArrayToCSV(output, rowData, currentTime, endTime, NUM_FILES);
+        writeArrayToCSV(output, rowData, currentTime, endTime, numberOfStudents);
         printf("-----\n");
+        /* free row data */
+        for (i = 0; i < numberOfStudents; i++) {
+            free(rowData[i]);
+        }
+        free(rowData);
     }
     return;
 }

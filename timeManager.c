@@ -42,7 +42,7 @@ char *processTimeStructToString(const time_t *time)
 {
     struct tm *timeStruct = localtime(time);
     char *timeString = (char *)malloc(15);
-    sprintf(timeString, "%d%02d%02dT%02d%02d%02d", timeStruct->tm_year + 1900, timeStruct->tm_mon + 1, timeStruct->tm_mday, timeStruct->tm_hour, timeStruct->tm_min, timeStruct->tm_sec);
+    snprintf(timeString, 15, "%d%02d%02dT%02d%02d%02d", timeStruct->tm_year + 1900, timeStruct->tm_mon + 1, timeStruct->tm_mday, timeStruct->tm_hour, timeStruct->tm_min, timeStruct->tm_sec);
     return timeString;
 }
 

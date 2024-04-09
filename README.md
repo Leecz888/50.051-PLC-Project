@@ -1,5 +1,3 @@
-# 50.051-PLC-Project
-
 <h1 align="center" style="border-bottom: none">
     <b>ICS Time Manager</b>
     <br>

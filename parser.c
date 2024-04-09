@@ -149,18 +149,27 @@ void processLine(FSM *fsm, char *line)
 }
 
 /*
-    Parses the ICS file
+    Parses the ICS file based on filename provided
 */
 ICS parseFile(char *filename)
 {
+    /* Define csv directory path */
+    const char* directory = "data/";
+    
+    char* fullPath;
     char line[MAX_LINE_LENGTH];
     FSM fsm;
     FILE *file;
     int length;
     initFSM(&fsm, filename);
+
+    /* Append filename to it */
+    fullPath = malloc(strlen(directory) + strlen(filename) + 1);
+    strcpy(fullPath, directory);
+    strcat(fullPath, filename);
  
     /* Open the ICS file */
-    file = fopen(filename, "r");
+    file = fopen(fullPath, "r");
     if (file == NULL)
     {
         fprintf(stderr, "Error opening file: %s\n", filename);
@@ -200,6 +209,8 @@ ICS parseFile(char *filename)
         exit(EXIT_FAILURE);
     }
 
+    /* Close the file and free variables */
+    free(fullPath);
     fclose(file);
     return fsm.ics;
 }

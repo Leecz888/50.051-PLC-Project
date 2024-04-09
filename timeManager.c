@@ -2,8 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+/* additional imports */
 #include "timeManager.h"
+
+int snprintf(char *buf, size_t size, const char *fmt, ...);
 
 void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second);
 

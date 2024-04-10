@@ -11,10 +11,6 @@
 /*
     Function prototypes
  */
-void printRowData(char** array, int size);
-void writeArrayToCSV(FILE* file, char** array, const time_t startTime, const time_t* endTime, size_t size);
-void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, size_t size);
-void processTimenode(timeNode* node, FILE* output, time_t* endTime, char** studentID, int numberOfStudents);
 void processLinkedList(timeLinkedList* list, char** studentIDS, int numberOfStudents);
 
 #endif

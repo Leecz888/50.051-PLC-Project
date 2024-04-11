@@ -143,6 +143,9 @@ void processLine(FSM *fsm, char *line)
             fsm->currentState = END_VCALENDAR_STATE;
         }
         break;
+    case END_VCALENDAR_STATE:
+        fsm->currentState = ERROR_STATE;
+        break;
     default:
         break;
     }
@@ -197,7 +200,7 @@ ICS parseFile(char *filename)
         /* If currentState is ERROR_STATE, throws an error */
         if (fsm.currentState == ERROR_STATE)
         {
-            fprintf(stderr, "Improper ICS file format. BEGIN:VCALENDAR not found.");
+            fprintf(stderr, "Improper ICS file format. BEGIN:VCALENDAR not found or END:VCALENDAR found before EOF.");
             exit(EXIT_FAILURE);
         }
     }

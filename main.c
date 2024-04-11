@@ -81,7 +81,7 @@ int main(int argc, char **argv)
                 printf("Class Name: %s\n", data[k].className);
                 printf("Time Start: %s\n", data[k].timeStart);
                 printf("Time End: %s\n", data[k].timeEnd);
-                addNode(list, data, convertStringToTime_t(data[k].timeStart), convertStringToTime_t(data[k].timeEnd));
+                addNode(list, data, processStringToTimeStruct(data[k].timeStart), processStringToTimeStruct(data[k].timeEnd));
             }
             printf("list size: %d\n", list->size);
 

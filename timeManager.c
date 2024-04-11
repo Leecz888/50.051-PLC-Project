@@ -7,6 +7,10 @@
 
 void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second);
 
+/*
+    Convert a string to a time_t struct
+    The string should be in the format "YYYYMMDDTHHMMSS"
+*/
 time_t processStringToTimeStruct(char *timeString) 
 {
     char* dateStartToken;
@@ -47,39 +51,8 @@ char *processTimeStructToString(const time_t *time)
 }
 
 /*
-    Converts a string to a time_t
+    Print time_t to stdout
 */
-time_t convertStringToTime_t(char *timeString)
-{
-    time_t time;
-    struct tm tm = {0};
-    if (sscanf(timeString, "%4d%2d%2dT%2d%2d%2d", 
-               &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
-               &tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
-        return -1; 
-    }
-
-    tm.tm_year -= 1900; 
-    tm.tm_mon -= 1;
-
-    time = mktime(&tm);
-    if (time == -1) {
-        return -1; 
-    }
-
-    return time;
-}
-
-void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second) 
-{
-    free(year);
-    free(month);
-    free(day);
-    free(hour);
-    free(minute);
-    free(second);
-}
-
 void printTime(const time_t *time) 
 {
     printf("Time: %s", ctime(time));

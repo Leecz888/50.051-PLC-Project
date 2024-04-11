@@ -73,7 +73,6 @@ typedef struct {
     time_t timeEnd;
 } timings;
 
-int processEvent(Event event, LLNodeData **data, char *studentID);
 int processRRule(char *rrule, char *dateStart, char *dateEnd, timings **timingsList);
 void getRRuleAttributes(char *rrule, RRuleAttributes *fsm);
 int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, RRuleAttributes *fsm);
@@ -265,7 +264,7 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
     startTime = processStringToTimeStruct(dateStart);
     endTime = processStringToTimeStruct(dateEnd);
 
-
+    /* Processing FREQ only */
     if (rules->count == 0 && rules->interval == 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
         *dateStartList = (time_t *)malloc(sizeof(time_t));
@@ -280,6 +279,10 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             (*dateStartList)[i] = startTime;
         }
     }
+    /* 
+        Processing FREQ BYDAY, FREQ BYDAY UNTIL, and FREQ UNTIL
+        BYDAY is only one day
+    */
     else if (rules -> count == 0 && rules -> interval == 0 && rules-> until != 0 && (rules-> sizeOfByDay == 0 || rules-> sizeOfByDay == 1)) 
     {
         endTime = processStringToTimeStruct(rules->until);
@@ -294,6 +297,7 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             (*dateStartList)[i] = startTime;
         }
     }
+    /* FREQ abd COUNT */
     else if (rules-> count != 0 && rules-> interval == 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
         *dateStartList = (time_t *)malloc(rules->count * sizeof(time_t));
@@ -305,7 +309,9 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
              (*dateStartList)[i] = startTime;
         }
         numDays = rules->count;
-    } else if (rules-> count == 0 && rules-> interval != 0 && rules-> hasByDay == 0 && rules->until == 0) 
+    }
+    /* FREQ and INTERVAL */ 
+    else if (rules-> count == 0 && rules-> interval != 0 && rules-> hasByDay == 0 && rules->until == 0) 
     {
         numDays += difftime(endTime, startTime) / (60 * 60 * 24 * 7 * rules->interval);
         *dateStartList = (time_t *)malloc(numDays * sizeof(time_t));
@@ -317,6 +323,7 @@ int createDateStartList(char *dateStart, char *dateEnd, time_t** dateStartList, 
             (*dateStartList)[i] = startTime;
         }
     } 
+    /* Unhandled combination of RRULE */
     else {
         return -1;
     }

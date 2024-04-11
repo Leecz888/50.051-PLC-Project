@@ -95,7 +95,6 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to BEGIN_VEVENT_STATE\n");
             fsm->currentState = BEGIN_VEVENT_STATE;
-            fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {
@@ -136,6 +135,7 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to BEGIN_VEVENT_STATE\n");
             fsm->currentState = BEGIN_VEVENT_STATE;
+            fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {

@@ -2,10 +2,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+/* additional imports */
 #include "timeManager.h"
-
-void freeIndividualTimeStrings(char *year, char *month, char *day, char *hour, char *minute, char *second);
 
 /*
     Convert a string to a time_t struct

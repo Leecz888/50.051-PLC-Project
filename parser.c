@@ -95,7 +95,6 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to BEGIN_VEVENT_STATE\n");
             fsm->currentState = BEGIN_VEVENT_STATE;
-            fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {
@@ -136,6 +135,7 @@ void processLine(FSM *fsm, char *line)
         {
             printf("Moving to BEGIN_VEVENT_STATE\n");
             fsm->currentState = BEGIN_VEVENT_STATE;
+            fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {
@@ -143,24 +143,36 @@ void processLine(FSM *fsm, char *line)
             fsm->currentState = END_VCALENDAR_STATE;
         }
         break;
+    case END_VCALENDAR_STATE:
+        fsm->currentState = ERROR_STATE;
+        break;
     default:
         break;
     }
 }
 
 /*
-    Parses the ICS file
+    Parses the ICS file based on filename provided
 */
 ICS parseFile(char *filename)
 {
+    /* Define csv directory path */
+    const char* directory = "data/";
+    
+    char* fullPath;
     char line[MAX_LINE_LENGTH];
     FSM fsm;
     FILE *file;
     int length;
     initFSM(&fsm, filename);
+
+    /* Append filename to it */
+    fullPath = malloc(strlen(directory) + strlen(filename) + 1);
+    strcpy(fullPath, directory);
+    strcat(fullPath, filename);
  
     /* Open the ICS file */
-    file = fopen(filename, "r");
+    file = fopen(fullPath, "r");
     if (file == NULL)
     {
         fprintf(stderr, "Error opening file: %s\n", filename);
@@ -188,7 +200,7 @@ ICS parseFile(char *filename)
         /* If currentState is ERROR_STATE, throws an error */
         if (fsm.currentState == ERROR_STATE)
         {
-            fprintf(stderr, "Improper ICS file format. BEGIN:VCALENDAR not found.");
+            fprintf(stderr, "Improper ICS file format. BEGIN:VCALENDAR not found or END:VCALENDAR found before EOF.");
             exit(EXIT_FAILURE);
         }
     }
@@ -200,6 +212,8 @@ ICS parseFile(char *filename)
         exit(EXIT_FAILURE);
     }
 
+    /* Close the file and free variables */
+    free(fullPath);
     fclose(file);
     return fsm.ics;
 }

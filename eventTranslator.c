@@ -21,16 +21,6 @@ typedef enum {
     YEARLY
 } freqType;
 
-/* 
-    Define enum for day of week
-    - SU: Sunday
-    - MO: Monday
-    - TU: Tuesday
-    - WE: Wednesday
-    - TH: Thursday
-    - FR: Friday
-    - SA: Saturday
-*/
 static const char *dayOfWeekStrings[] = {
     "SU",
     "MO",

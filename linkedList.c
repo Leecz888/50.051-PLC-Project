@@ -77,19 +77,10 @@ void addNode(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t en
     currentTime = startTime;
     while (difftime(currentTime, endTime) < 0) {
         /*
-        printf("Current Class: %s\n", current->data->className);
-        printf("Current->Time: %s, %s\n", ctime(&current->startTime), current->time);
-        printf("Data->Time: %s\n", ctime(&currentTime));
-        */
-        
-        /*
             Traverse the linked list to find the correct position to insert the new node
         */
         /* Condition 1: newNode is later than currentNode -> continue traversing */
         while (current != NULL && difftime(currentTime,  current->startTime) > 0) {
-            /*
-            printf("While: New Current: %s\n", current->time);
-            */
             prev = current;
             current = current->next;
         }
@@ -123,10 +114,6 @@ void addNode(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t en
             newNode->time = malloc(strlen(timeStr) + 1);
             newNode->startTime = currentTime;
             strcpy(newNode->time, timeStr);
-            /*
-            printf("NewNode Time: %s\n", newNode->time); 
-            printf("NewNode Time: %s\n", ctime(&newNode->startTime)); 
-            */
 
             newNode->data = malloc(sizeof(dataNode));
             newNode->data->className = malloc(strlen(data->className) + 1);

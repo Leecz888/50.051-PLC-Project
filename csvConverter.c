@@ -7,10 +7,12 @@
 #include "linkedList.h"
 #include "timeManager.h"
 
-/* Placeholder constant for number of ICS files */
-#define NUM_FILES 2
+/* Placeholder string length to write to CSV */
 #define MAX_LENGTH 100
 
+/*
+    Helper function to print each row of rowData
+*/
 void printRowData(char** array, int size) {
     int i;
     for (i = 0; i < size; i++) {
@@ -18,34 +20,39 @@ void printRowData(char** array, int size) {
     }
 }
 
-
+/*
+    Writes each occupied row / timeslot to the CSV file
+*/
 void writeArrayToCSV(FILE* file, char** array, const time_t startTime, const time_t* endTime, size_t size) {
     size_t i;
     char* startDate;
     char* endDate;
 
-    /* write start date to csv */
+    /* Write start date to csv */
     startDate = ctime(&startTime);    
     startDate[strlen(startDate)-1] = '\0';
     fprintf(file, "%s,", startDate);
     
-    /* write end date to csv */
+    /* Write end date to csv */
     endDate = ctime(endTime);
     endDate[strlen(endDate)-1] = '\0';
     fprintf(file, "%s,", endDate);
 
-    /* write occupied classes to csv */
+    /* Write occupied classes to csv */
     for (i=0; i<size; i++) {
         fprintf(file, "%s", array[i]);
-        /* only add comma if element is not the last */
+        /* Only add comma if element is not the last */
         if (i != size-1) {
             fprintf(file, ",");
         }
     }
-    /* move file pointer to the next row */
+    /* Move file pointer to the next row */
     fprintf(file, "\n");
 }
 
+/*
+    Writes 'FREE' to denote all members having free timeslots to the CSV file
+*/
 void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, size_t size) {
     size_t i;
     char* startDate;
@@ -77,7 +84,7 @@ void writeFreetoCSV(FILE* file, const time_t* startTime, const time_t endTime, s
 /*
     Process a single TimeNode
 */
-void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** studentIDS, int numberOfStudents) {
+void processTimenode(timeNode* node, FILE* output, time_t* endTime, char** studentIDS, int numberOfStudents) {
     int i;
     char** rowData;
     time_t currentTime;
@@ -105,10 +112,10 @@ void process_timenode(timeNode* node, FILE* output, time_t* endTime, char** stud
 
     /* Else, timeslot is occupied by someone */
     if (difftime(currentTime, *endTime) == 0) {
-        /* set new endTime pointer */
+        /* Set new endTime pointer */
         *endTime = currentTime + 1800;
         
-        /* traverse data node to populate rowData*/
+        /* Traverse data node to populate rowData*/
         /* Print all attributes in data */
         while (data != NULL) {
             for (i = 0; i < numberOfStudents; i++) {
@@ -142,7 +149,7 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
     *endTime = current->startTime;
 
     /* Open the output CSV file */
-    output = fopen("output.csv", "w");
+    output = fopen("output/output.csv", "w");
     
     /* Check for invalid CSV file opening */
     if (output == NULL) {
@@ -168,7 +175,7 @@ void processLinkedList(timeLinkedList *list, char **studentIDS, int numberOfStud
 
     /* Loop through linked list until NULL */
     while (current != NULL) {
-        process_timenode(current, output, endTime, studentIDS, numberOfStudents);
+        processTimenode(current, output, endTime, studentIDS, numberOfStudents);
         current = current->next;
     }
     

@@ -28,8 +28,6 @@ void addNode(timeLinkedList *list, LLNodeData *data, time_t startTime, time_t en
     timeNode *current;
     timeNode *prev;
 
-    printf("startTime: %s\n", ctime(&startTime));
-    printf("endTime: %s\n", ctime(&endTime));
     /*
         If linked list is empty, set the new node as the head
     */

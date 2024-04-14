@@ -226,7 +226,6 @@ void getRRuleAttributes(char *rrule, RRuleAttributes *rules)
                     {
                         rules->byDay = (int *)realloc(rules->byDay, (i + 1) * sizeof(int));
                         rules->byDay[j] = i;
-                        printf("Day: %d\n", rules->byDay[j]);
                         rules->sizeOfByDay += 1;
                         j++;
                         break;

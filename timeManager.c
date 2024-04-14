@@ -29,7 +29,6 @@ time_t processStringToTimeStruct(char *timeString)
     tm.tm_mon -= 1;
 
     time = mktime(&tm);
-    printf("Time: %s", ctime(&time));
     if (time == -1) {
         return -1;
     }

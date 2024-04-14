@@ -74,8 +74,10 @@ void addEvent(FSM *fsm)
 */
 void processLine(FSM *fsm, char *line)
 {
+    /*
     printf("Current State: %d\n", fsm->currentState);
     printf("Current Line: %s\n", line);
+    */
     switch (fsm->currentState)
     {
     case INITIAL_STATE:
@@ -105,7 +107,9 @@ void processLine(FSM *fsm, char *line)
     case BEGIN_VEVENT_STATE:
         if (strcmp(line, "END:VEVENT") == 0)
         {
+            /*
             printf("Moving to END_VEVENT_STATE\n");
+            */
             fsm->currentState = END_VEVENT_STATE;
             addEvent(fsm);
         }
@@ -133,13 +137,17 @@ void processLine(FSM *fsm, char *line)
     case END_VEVENT_STATE:
         if (strcmp(line, "BEGIN:VEVENT") == 0)
         {
+            /*
             printf("Moving to BEGIN_VEVENT_STATE\n");
+            */
             fsm->currentState = BEGIN_VEVENT_STATE;
             fsm->currentEvent = createEvent();
         }
         else if (strcmp(line, "END:VCALENDAR") == 0)
         {
+            /*
             printf("Moving to END_VCALENDAR_STATE\n");
+            */
             fsm->currentState = END_VCALENDAR_STATE;
         }
         break;

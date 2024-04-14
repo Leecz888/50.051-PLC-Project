@@ -47,7 +47,6 @@ typedef struct {
     int interval;
     int freq;
     int hasByDay;
-    int hasUntil;
     char* until;
     int* byDay;
     int sizeOfByDay;
@@ -76,7 +75,6 @@ void initRRuleAttributes(RRuleAttributes *rules)
     rules->interval = 0;
     rules->freq = 0;
     rules->hasByDay = 0;
-    rules->hasUntil = 0;
     rules->until = NULL;
     rules->byDay = 0;
     rules->sizeOfByDay = 0;
@@ -210,7 +208,6 @@ void getRRuleAttributes(char *rrule, RRuleAttributes *rules)
         else if (strstr(token, "UNTIL") != NULL)
         {
             char *until = strchr(token, '=') + 1;
-            rules->hasUntil = 1;
             rules->until = until;
 
         }

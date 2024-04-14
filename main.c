@@ -85,9 +85,8 @@ int main(int argc, char **argv)
             }
             printf("list size: %d\n", list->size);
 
-
         }
-        /* print all the student names */
+        freeICS(&ics);
     }
     processLinkedList(list, studentIDS, argc - 1);
     freeList(list);

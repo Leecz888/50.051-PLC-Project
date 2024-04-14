@@ -70,7 +70,6 @@ int main(int argc, char **argv)
         {
            
             LLNodeData *data;
-            printEvent(ics.events[j]);
             numberOfNodes = processEvent(ics.events[j], &data, studentID);
             for (k = 0; k < numberOfNodes; k++)
             {

@@ -163,10 +163,7 @@ void processLine(FSM *fsm, char *line)
     Parses the ICS file based on filename provided
 */
 ICS parseFile(char *filename)
-{
-    /* Define csv directory path */
-    const char* directory = "data/";
-    
+{    
     char* fullPath;
     char line[MAX_LINE_LENGTH];
     FSM fsm;
@@ -175,9 +172,8 @@ ICS parseFile(char *filename)
     initFSM(&fsm, filename);
 
     /* Append filename to it */
-    fullPath = malloc(strlen(directory) + strlen(filename) + 1);
-    strcpy(fullPath, directory);
-    strcat(fullPath, filename);
+    fullPath = malloc(strlen(filename) + 1);
+    strcpy(fullPath, filename);
  
     /* Open the ICS file */
     file = fopen(fullPath, "r");

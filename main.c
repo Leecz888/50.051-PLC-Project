@@ -66,26 +66,16 @@ int main(int argc, char **argv)
 
 
         studentIDS[i - 1] = studentID;
-        printf("No. Events: %d\n", ics.numEvents);
         for (j = 0; j < ics.numEvents; j++)
         {
            
             LLNodeData *data;
-            printf("Event %d:\n", j + 1);
             printEvent(ics.events[j]);
             numberOfNodes = processEvent(ics.events[j], &data, studentID);
-            printf("Number of Nodes: %d\n", numberOfNodes);
             for (k = 0; k < numberOfNodes; k++)
             {
-                printf("Student Name: %d\n", data[k].studentID);
-                printf("Class Name: %s\n", data[k].className);
-                printf("Time Start: %s\n", data[k].timeStart);
-                printf("Time End: %s\n", data[k].timeEnd);
                 addNode(list, data, processStringToTimeStruct(data[k].timeStart), processStringToTimeStruct(data[k].timeEnd));
             }
-            printf("list size: %d\n", list->size);
-
-
         }
         freeICS(&ics);
     }

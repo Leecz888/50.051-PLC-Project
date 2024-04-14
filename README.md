@@ -44,5 +44,5 @@ gcc main.c csvConverter.c eventTranslator.c parser.c timeManager.c linkedList.c 
 
 ### 2. To run with sample ICS files (files are placed in `/data`)
 ```
-main.c sample1.ics sample2.ics sample3.ics sample4.ics
+./main data/sample1.ics data/sample2.ics data/sample3.ics data/sample4.ics
 ```

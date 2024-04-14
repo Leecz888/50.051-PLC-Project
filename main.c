@@ -85,6 +85,7 @@ int main(int argc, char **argv)
             }
             printf("list size: %d\n", list->size);
 
+
         }
         freeICS(&ics);
     }

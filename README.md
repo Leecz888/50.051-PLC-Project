@@ -39,7 +39,7 @@
 
 ### 1. To compile code with flags (supported on Windows, Linux and Mac)
 ```
-gcc main.c csvConverter.c eventTranslator.c parser.c timeManager.c linkedList.c -o main -ansi -pedantic -Wall -Werror
+make
 ```
 
 ### 2. To run with sample ICS files (files are placed in `/data`)
